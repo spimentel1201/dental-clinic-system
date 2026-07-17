@@ -25,8 +25,25 @@ import {
 } from '@/components/ui/select'
 import { patients } from '@/lib/data'
 
+const DURACIONES: Record<string, string> = {
+  '30': '30 minutos',
+  '45': '45 minutos',
+  '60': '1 hora',
+  '90': '1 hora 30 min',
+}
+
+const DOCTORES: Record<string, string> = {
+  salas: 'Dra. Salas',
+  rivera: 'Dr. Rivera',
+}
+
 export function NewAppointmentDialog() {
   const [open, setOpen] = useState(false)
+  const [pacienteId, setPacienteId] = useState('P-001')
+  const [duracion, setDuracion] = useState('30')
+  const [doctor, setDoctor] = useState('salas')
+
+  const paciente = patients.find((p) => p.id === pacienteId) ?? patients[0]
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -51,9 +68,9 @@ export function NewAppointmentDialog() {
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor="cita-paciente">Paciente</FieldLabel>
-              <Select defaultValue="P-001">
+              <Select value={pacienteId} onValueChange={(v) => v && setPacienteId(String(v))}>
                 <SelectTrigger id="cita-paciente" className="w-full">
-                  <SelectValue />
+                  <SelectValue>{`${paciente.nombres} ${paciente.apellidos} — ${paciente.celular}`}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -81,9 +98,9 @@ export function NewAppointmentDialog() {
             <div className="grid grid-cols-2 gap-4">
               <Field>
                 <FieldLabel htmlFor="cita-duracion">Duración</FieldLabel>
-                <Select defaultValue="30">
+                <Select value={duracion} onValueChange={(v) => v && setDuracion(String(v))}>
                   <SelectTrigger id="cita-duracion" className="w-full">
-                    <SelectValue />
+                    <SelectValue>{DURACIONES[duracion]}</SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
@@ -97,9 +114,9 @@ export function NewAppointmentDialog() {
               </Field>
               <Field>
                 <FieldLabel htmlFor="cita-doctor">Doctor</FieldLabel>
-                <Select defaultValue="salas">
+                <Select value={doctor} onValueChange={(v) => v && setDoctor(String(v))}>
                   <SelectTrigger id="cita-doctor" className="w-full">
-                    <SelectValue />
+                    <SelectValue>{DOCTORES[doctor]}</SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>

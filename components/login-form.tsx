@@ -21,10 +21,16 @@ import {
 } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
 
+const ROLES: Record<string, string> = {
+  doctor: 'Odontólogo / Administrador',
+  recepcion: 'Recepción',
+}
+
 export function LoginForm() {
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [rol, setRol] = useState('doctor')
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -50,9 +56,9 @@ export function LoginForm() {
         <FieldGroup>
           <Field>
             <FieldLabel htmlFor="rol">Perfil de acceso</FieldLabel>
-            <Select defaultValue="doctor">
+            <Select value={rol} onValueChange={(v) => v && setRol(String(v))}>
               <SelectTrigger id="rol" className="w-full">
-                <SelectValue />
+                <SelectValue>{ROLES[rol]}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>

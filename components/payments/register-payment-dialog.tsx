@@ -25,9 +25,17 @@ import {
 } from '@/components/ui/select'
 import { patients, formatSoles } from '@/lib/data'
 
+const METODOS: Record<string, string> = {
+  efectivo: 'Efectivo',
+  tarjeta: 'Tarjeta',
+  yape: 'Yape',
+  plin: 'Plin',
+}
+
 export function RegisterPaymentDialog() {
   const [open, setOpen] = useState(false)
   const [patientId, setPatientId] = useState<string>('P-001')
+  const [metodo, setMetodo] = useState('efectivo')
 
   const selected = patients.find((p) => p.id === patientId)
 
@@ -56,7 +64,9 @@ export function RegisterPaymentDialog() {
               <FieldLabel htmlFor="paciente">Paciente</FieldLabel>
               <Select value={patientId} onValueChange={(v) => setPatientId(v as string)}>
                 <SelectTrigger id="paciente" className="w-full">
-                  <SelectValue />
+                  <SelectValue>
+                    {selected ? `${selected.nombres} ${selected.apellidos} — DNI ${selected.dni}` : 'Seleccionar paciente'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -93,9 +103,9 @@ export function RegisterPaymentDialog() {
 
             <Field>
               <FieldLabel htmlFor="metodo">Método de pago</FieldLabel>
-              <Select defaultValue="efectivo">
+              <Select value={metodo} onValueChange={(v) => v && setMetodo(String(v))}>
                 <SelectTrigger id="metodo" className="w-full">
-                  <SelectValue />
+                  <SelectValue>{METODOS[metodo]}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
