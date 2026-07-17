@@ -1,6 +1,7 @@
 import { Bell, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 export function AppHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
@@ -24,6 +25,7 @@ export function AppHeader({ title, subtitle }: { title: string; subtitle?: strin
             aria-label="Buscar paciente"
           />
         </div>
+        <ThemeToggle />
         <Button variant="outline" size="icon" aria-label="Notificaciones" className="relative">
           <Bell aria-hidden="true" />
           <span className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-destructive" />

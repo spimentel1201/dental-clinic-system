@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { LoginForm } from '@/components/login-form'
+import { ThemeToggle } from '@/components/theme-toggle'
 import { Stethoscope, ShieldCheck, CalendarDays, Wallet } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -62,7 +63,10 @@ export default function LoginPage() {
         </p>
       </section>
 
-      <section className="flex flex-1 items-center justify-center px-4 py-10">
+      <section className="relative flex flex-1 items-center justify-center px-4 py-10">
+        <div className="absolute right-4 top-4">
+          <ThemeToggle />
+        </div>
         <LoginForm />
       </section>
     </main>

@@ -8,10 +8,11 @@ import {
   Cake,
   Camera,
   Plus,
-  FileText,
   Smile,
 } from 'lucide-react'
 import { AppHeader } from '@/components/app-header'
+import { NewPatientDialog } from '@/components/patients/new-patient-dialog'
+import { ConsentPdfButton } from '@/components/patients/consent-pdf-button'
 import {
   Card,
   CardContent,
@@ -60,10 +61,7 @@ export default function HistoriaPage() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Pacientes</CardTitle>
-                <Button size="sm" variant="outline">
-                  <Plus data-icon="inline-start" />
-                  Nuevo
-                </Button>
+                <NewPatientDialog />
               </div>
               <CardDescription>{patients.length} fichas registradas</CardDescription>
             </CardHeader>
@@ -160,10 +158,13 @@ export default function HistoriaPage() {
                     <Smile data-icon="inline-start" />
                     Odontograma
                   </Button>
-                  <Button size="sm">
-                    <FileText data-icon="inline-start" />
-                    Consentimiento PDF
-                  </Button>
+                  <ConsentPdfButton
+                    nombres={patient.nombres}
+                    apellidos={patient.apellidos}
+                    dni={patient.dni}
+                    edad={patient.edad}
+                    alertas={patient.alertas.map((a) => a.detalle)}
+                  />
                 </div>
               </div>
             </CardHeader>
