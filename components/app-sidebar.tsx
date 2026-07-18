@@ -35,7 +35,7 @@ export function AppSidebar() {
           <Stethoscope className="size-4.5" aria-hidden="true" />
         </div>
         <div className="flex flex-col">
-          <span className="text-sm font-semibold leading-tight">DentaClinic</span>
+          <span className="text-sm font-semibold leading-tight">Clínica Dental</span>
           <span className="text-[11px] leading-tight text-sidebar-foreground/60">
             Mollendo, Arequipa
           </span>
