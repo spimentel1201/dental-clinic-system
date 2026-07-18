@@ -23,21 +23,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { patients, formatSoles } from '@/lib/data'
+import { patients, budgets, formatSoles } from '@/lib/data'
 
 const METODOS: Record<string, string> = {
-  efectivo: 'Efectivo',
-  tarjeta: 'Tarjeta',
-  yape: 'Yape',
-  plin: 'Plin',
+  'efectivo': 'Efectivo',
+  'yape-plin': 'Yape/Plin',
+  'otros': 'Otros',
 }
 
 export function RegisterPaymentDialog() {
   const [open, setOpen] = useState(false)
   const [patientId, setPatientId] = useState<string>('P-001')
-  const [metodo, setMetodo] = useState('efectivo')
+  const [metodo, setMetodo] = useState<'efectivo' | 'yape-plin' | 'otros'>('efectivo')
+  const [budgetId, setBudgetId] = useState<string>('')
+  const [sessionId, setSessionId] = useState<string>('')
 
   const selected = patients.find((p) => p.id === patientId)
+  const selectedBudget = budgetId ? budgets.find((b) => b.id === budgetId) : null
+  const patientBudgets = budgets.filter((b) => b.pacienteId === patientId && b.totalPagado < b.presupuestoTotal)
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -101,18 +104,61 @@ export function RegisterPaymentDialog() {
               </Field>
             </div>
 
+            {patientBudgets.length > 0 && (
+              <Field>
+                <FieldLabel htmlFor="presupuesto">Presupuesto (opcional)</FieldLabel>
+                <Select value={budgetId} onValueChange={(v) => v !== null && setBudgetId(v)}>
+                  <SelectTrigger id="presupuesto" className="w-full">
+                    <SelectValue>
+                      {selectedBudget ? `${selectedBudget.id} - Pendiente: S/ ${(selectedBudget.presupuestoTotal - selectedBudget.totalPagado).toLocaleString('es-PE')}` : 'Sin presupuesto'}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Sin presupuesto</SelectItem>
+                    {patientBudgets.map((budget) => (
+                      <SelectItem key={budget.id} value={budget.id}>
+                        {budget.id} - Pendiente: S/ {(budget.presupuestoTotal - budget.totalPagado).toLocaleString('es-PE')}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+            )}
+
+            {selectedBudget && selectedBudget.sesiones.length > 0 && (
+              <Field>
+                <FieldLabel htmlFor="sesion">Sesión (opcional)</FieldLabel>
+                <Select value={sessionId} onValueChange={(v) => v !== null && setSessionId(v)}>
+                  <SelectTrigger id="sesion" className="w-full">
+                    <SelectValue>
+                      {sessionId
+                        ? `Sesión ${selectedBudget.sesiones.find((s) => s.id === sessionId)?.numero}`
+                        : 'Todas las sesiones'}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Todas las sesiones</SelectItem>
+                    {selectedBudget.sesiones.map((sesion) => (
+                      <SelectItem key={sesion.id} value={sesion.id}>
+                        Sesión {sesion.numero} - S/ {sesion.costo.toLocaleString('es-PE')}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+            )}
+
             <Field>
               <FieldLabel htmlFor="metodo">Método de pago</FieldLabel>
-              <Select value={metodo} onValueChange={(v) => v && setMetodo(String(v))}>
+              <Select value={metodo} onValueChange={(v) => setMetodo(v as any)}>
                 <SelectTrigger id="metodo" className="w-full">
                   <SelectValue>{METODOS[metodo]}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
                     <SelectItem value="efectivo">Efectivo</SelectItem>
-                    <SelectItem value="tarjeta">Tarjeta</SelectItem>
-                    <SelectItem value="yape">Yape</SelectItem>
-                    <SelectItem value="plin">Plin</SelectItem>
+                    <SelectItem value="yape-plin">Yape / Plin</SelectItem>
+                    <SelectItem value="otros">Otros</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>

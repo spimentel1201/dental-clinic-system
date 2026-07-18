@@ -73,6 +73,15 @@ export const patients: Patient[] = [
   },
 ]
 
+export type AppointmentNote = {
+  id: string
+  citaId: string
+  fecha: string
+  diagnosis?: string
+  notas?: string
+  cambioEstado?: { de: string; a: string; fecha: string }
+}
+
 export type Appointment = {
   id: string
   pacienteId: string
@@ -83,7 +92,10 @@ export type Appointment = {
   duracionMin: number
   tratamiento: string
   doctor: string
-  estado: 'confirmada' | 'pendiente' | 'cancelada' | 'atendida'
+  estado: 'confirmada' | 'pendiente' | 'cancelada' | 'atendida' | 'no-presentó'
+  diagnosis?: string
+  notas?: AppointmentNote[]
+  presupuestoId?: string
 }
 
 export const appointments: Appointment[] = [
@@ -99,6 +111,47 @@ export const appointments: Appointment[] = [
   { id: 'C-110', pacienteId: 'P-003', paciente: 'Rosa Flores Condori', celular: '956 234 187', fecha: '2026-07-13', hora: '09:00', duracionMin: 45, tratamiento: 'Blanqueamiento dental', doctor: 'Dra. Salas', estado: 'atendida' },
 ]
 
+export type BudgetPayment = {
+  id: string
+  budgetId: string
+  sesionId?: string
+  monto: number
+  metodoPago: 'efectivo' | 'yape-plin' | 'otros'
+  fecha: string
+  estado: 'registrado' | 'confirmado'
+}
+
+export type TreatmentSession = {
+  id: string
+  numero: number
+  piezas: string[]
+  costo: number
+  estado: 'pendiente' | 'completado'
+  totalPagado: number
+  pagos: BudgetPayment[]
+}
+
+export type BudgetItem = {
+  tratamiento: string
+  pieza: string
+  costo: number
+  sesionId: string
+  estado: 'pendiente' | 'en_proceso' | 'completado'
+}
+
+export type Budget = {
+  id: string
+  pacienteId: string
+  paciente: string
+  fecha: string
+  items: BudgetItem[]
+  sesiones: TreatmentSession[]
+  presupuestoTotal: number
+  totalPagado: number
+  estado: 'borrador' | 'enviado' | 'aceptado' | 'en-proceso' | 'completado'
+  pagos: BudgetPayment[]
+}
+
 export type Payment = {
   id: string
   pacienteId: string
@@ -107,7 +160,8 @@ export type Payment = {
   monto: number
   metodo: 'Efectivo' | 'Tarjeta' | 'Yape' | 'Plin'
   concepto: string
-  presupuestoId: string
+  presupuestoId?: string
+  budgetPaymentId?: string
 }
 
 export const payments: Payment[] = [
@@ -120,16 +174,6 @@ export const payments: Payment[] = [
   { id: 'AB-507', pacienteId: 'P-004', paciente: 'Carlos Vargas Paredes', fecha: '2026-07-08', monto: 350, metodo: 'Tarjeta', concepto: 'Adelanto presupuesto general', presupuestoId: 'PR-004' },
 ]
 
-export type Budget = {
-  id: string
-  pacienteId: string
-  paciente: string
-  fecha: string
-  items: { tratamiento: string; pieza: string; costo: number; estado: 'pendiente' | 'en_proceso' | 'completado' }[]
-  total: number
-  abonado: number
-}
-
 export const budgets: Budget[] = [
   {
     id: 'PR-001',
@@ -137,13 +181,51 @@ export const budgets: Budget[] = [
     paciente: 'María Elena Quispe',
     fecha: '2026-07-14',
     items: [
-      { tratamiento: 'Endodoncia', pieza: '1.1', costo: 700, estado: 'en_proceso' },
-      { tratamiento: 'Curación (resina)', pieza: '1.4', costo: 180, estado: 'pendiente' },
-      { tratamiento: 'Curación (resina)', pieza: '2.6', costo: 180, estado: 'pendiente' },
-      { tratamiento: 'Profilaxis', pieza: '—', costo: 120, estado: 'completado' },
+      { tratamiento: 'Endodoncia', pieza: '1.1', costo: 700, sesionId: 'S-001-1', estado: 'en_proceso' },
+      { tratamiento: 'Curación (resina)', pieza: '1.4', costo: 180, sesionId: 'S-001-2', estado: 'pendiente' },
+      { tratamiento: 'Curación (resina)', pieza: '2.6', costo: 180, sesionId: 'S-001-2', estado: 'pendiente' },
+      { tratamiento: 'Profilaxis', pieza: '—', costo: 120, sesionId: 'S-001-3', estado: 'completado' },
     ],
-    total: 1180,
-    abonado: 550,
+    sesiones: [
+      {
+        id: 'S-001-1',
+        numero: 1,
+        piezas: ['1.1'],
+        costo: 700,
+        estado: 'completado',
+        totalPagado: 550,
+        pagos: [
+          { id: 'BP-001', budgetId: 'PR-001', sesionId: 'S-001-1', monto: 300, metodoPago: 'yape-plin', fecha: '2026-07-14', estado: 'confirmado' },
+          { id: 'BP-002', budgetId: 'PR-001', sesionId: 'S-001-1', monto: 250, metodoPago: 'yape-plin', fecha: '2026-07-17', estado: 'confirmado' },
+        ],
+      },
+      {
+        id: 'S-001-2',
+        numero: 2,
+        piezas: ['1.4', '2.6'],
+        costo: 360,
+        estado: 'pendiente',
+        totalPagado: 0,
+        pagos: [],
+      },
+      {
+        id: 'S-001-3',
+        numero: 3,
+        piezas: [],
+        costo: 120,
+        estado: 'completado',
+        totalPagado: 120,
+        pagos: [{ id: 'BP-003', budgetId: 'PR-001', sesionId: 'S-001-3', monto: 120, metodoPago: 'efectivo', fecha: '2026-07-02', estado: 'confirmado' }],
+      },
+    ],
+    presupuestoTotal: 1180,
+    totalPagado: 670,
+    estado: 'en-proceso',
+    pagos: [
+      { id: 'BP-001', budgetId: 'PR-001', sesionId: 'S-001-1', monto: 300, metodoPago: 'yape-plin', fecha: '2026-07-14', estado: 'confirmado' },
+      { id: 'BP-002', budgetId: 'PR-001', sesionId: 'S-001-1', monto: 250, metodoPago: 'yape-plin', fecha: '2026-07-17', estado: 'confirmado' },
+      { id: 'BP-003', budgetId: 'PR-001', sesionId: 'S-001-3', monto: 120, metodoPago: 'efectivo', fecha: '2026-07-02', estado: 'confirmado' },
+    ],
   },
   {
     id: 'PR-002',
@@ -151,26 +233,34 @@ export const budgets: Budget[] = [
     paciente: 'Jorge Mamani Ticona',
     fecha: '2026-07-10',
     items: [
-      { tratamiento: 'Curación (resina)', pieza: '3.6', costo: 180, estado: 'en_proceso' },
-      { tratamiento: 'Curación (resina)', pieza: '3.7', costo: 180, estado: 'pendiente' },
-      { tratamiento: 'Extracción simple', pieza: '4.8', costo: 140, estado: 'pendiente' },
+      { tratamiento: 'Curación (resina)', pieza: '3.6', costo: 180, sesionId: 'S-002-1', estado: 'en_proceso' },
+      { tratamiento: 'Curación (resina)', pieza: '3.7', costo: 180, sesionId: 'S-002-2', estado: 'pendiente' },
+      { tratamiento: 'Extracción simple', pieza: '4.8', costo: 140, sesionId: 'S-002-2', estado: 'pendiente' },
     ],
-    total: 500,
-    abonado: 180,
-  },
-  {
-    id: 'PR-004',
-    pacienteId: 'P-004',
-    paciente: 'Carlos Vargas Paredes',
-    fecha: '2026-07-08',
-    items: [
-      { tratamiento: 'Cambio de corona (porcelana)', pieza: '2.5', costo: 1200, estado: 'en_proceso' },
-      { tratamiento: 'Curación (resina)', pieza: '1.6', costo: 180, estado: 'pendiente' },
-      { tratamiento: 'Profilaxis', pieza: '—', costo: 120, estado: 'completado' },
-      { tratamiento: 'Radiografía panorámica', pieza: '—', costo: 80, estado: 'completado' },
+    sesiones: [
+      {
+        id: 'S-002-1',
+        numero: 1,
+        piezas: ['3.6'],
+        costo: 180,
+        estado: 'completado',
+        totalPagado: 180,
+        pagos: [{ id: 'BP-004', budgetId: 'PR-002', sesionId: 'S-002-1', monto: 180, metodoPago: 'otros', fecha: '2026-07-17', estado: 'confirmado' }],
+      },
+      {
+        id: 'S-002-2',
+        numero: 2,
+        piezas: ['3.7', '4.8'],
+        costo: 320,
+        estado: 'pendiente',
+        totalPagado: 0,
+        pagos: [],
+      },
     ],
-    total: 1580,
-    abonado: 750,
+    presupuestoTotal: 500,
+    totalPagado: 180,
+    estado: 'en-proceso',
+    pagos: [{ id: 'BP-004', budgetId: 'PR-002', sesionId: 'S-002-1', monto: 180, metodoPago: 'otros', fecha: '2026-07-17', estado: 'confirmado' }],
   },
 ]
 

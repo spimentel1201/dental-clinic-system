@@ -34,6 +34,7 @@ const stateStyles: Record<Appointment['estado'], string> = {
   pendiente: 'border-warning/40 bg-warning/10 text-foreground',
   atendida: 'border-success/40 bg-success/10 text-muted-foreground',
   cancelada: 'border-border bg-muted text-muted-foreground line-through',
+  'no-presentó': 'border-destructive/40 bg-destructive/10 text-muted-foreground',
 }
 
 export function WeekCalendar({
