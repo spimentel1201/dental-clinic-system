@@ -11,6 +11,7 @@ import {
   Settings,
   LogOut,
   Stethoscope,
+  DollarSign,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -18,6 +19,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 const navItems = [
   { href: '/', label: 'Panel de control', icon: LayoutDashboard },
   { href: '/citas', label: 'Agenda de citas', icon: CalendarDays },
+  { href: '/presupuestos', label: 'Presupuestos', icon: DollarSign },
   { href: '/pagos', label: 'Pagos y caja', icon: Wallet },
   { href: '/historia', label: 'Historia clínica', icon: FileText },
   { href: '/odontograma', label: 'Odontograma', icon: Smile },

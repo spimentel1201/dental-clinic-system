@@ -159,8 +159,8 @@ export default function PagosPage() {
 
           <TabsContent value="presupuestos" className="flex flex-col gap-6">
             {budgets.map((b) => {
-              const saldo = b.total - b.abonado
-              const pct = Math.round((b.abonado / b.total) * 100)
+              const saldo = b.presupuestoTotal - b.totalPagado
+              const pct = Math.round((b.totalPagado / b.presupuestoTotal) * 100)
               return (
                 <Card key={b.id}>
                   <CardHeader>
@@ -178,13 +178,13 @@ export default function PagosPage() {
                         <div className="flex flex-col">
                           <span className="text-xs text-muted-foreground">Costo total</span>
                           <span className="font-semibold tabular-nums">
-                            {formatSoles(b.total)}
+                            {formatSoles(b.presupuestoTotal)}
                           </span>
                         </div>
                         <div className="flex flex-col">
                           <span className="text-xs text-muted-foreground">Abonado</span>
                           <span className="font-semibold tabular-nums text-success">
-                            {formatSoles(b.abonado)}
+                            {formatSoles(b.totalPagado)}
                           </span>
                         </div>
                         <div className="flex flex-col">
