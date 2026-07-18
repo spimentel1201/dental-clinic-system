@@ -4,9 +4,11 @@ import { useState } from 'react'
 import { MessageCircle, Phone } from 'lucide-react'
 import { AppHeader } from '@/components/app-header'
 import { WeekCalendar } from '@/components/appointments/week-calendar'
+import { MonthCalendar } from '@/components/appointments/month-calendar'
 import { NewAppointmentDialog } from '@/components/appointments/new-appointment-dialog'
 import { AppointmentDetailsDialog } from '@/components/appointments/appointment-details-dialog'
 import { Appointment } from '@/lib/data'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Card,
   CardContent,
@@ -47,22 +49,41 @@ export default function CitasPage() {
       />
       <main className="flex flex-1 flex-col gap-6 p-4 md:p-6 xl:flex-row">
         <div className="min-w-0 flex-1">
-          <Card>
-            <CardHeader>
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex flex-col gap-1">
-                  <CardTitle>Calendario semanal</CardTitle>
-                  <CardDescription>
-                    Los horarios ocupados se muestran bloqueados para evitar cruces
-                  </CardDescription>
+          <Tabs defaultValue="semanal" className="w-full">
+            <Card>
+              <CardHeader>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex flex-col gap-1">
+                    <CardTitle>Calendarios</CardTitle>
+                    <CardDescription>
+                      Visualiza tus citas en vista semanal o mensual
+                    </CardDescription>
+                  </div>
+                  <NewAppointmentDialog />
                 </div>
-                <NewAppointmentDialog />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <WeekCalendar />
-            </CardContent>
-          </Card>
+              </CardHeader>
+              <CardContent>
+                <TabsList className="grid w-full grid-cols-2 mb-6">
+                  <TabsTrigger value="semanal">Semanal</TabsTrigger>
+                  <TabsTrigger value="mensual">Mensual</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="semanal">
+                  <WeekCalendar />
+                </TabsContent>
+
+                <TabsContent value="mensual">
+                  <MonthCalendar
+                    appointments={appointments}
+                    onAppointmentClick={(apt) => {
+                      setSelectedAppointment(apt)
+                      setDetailsOpen(true)
+                    }}
+                  />
+                </TabsContent>
+              </CardContent>
+            </Card>
+          </Tabs>
         </div>
 
         <aside className="flex w-full shrink-0 flex-col gap-6 xl:w-80" aria-label="Recordatorios">
