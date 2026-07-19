@@ -343,6 +343,31 @@ export const initialToothStates: Record<number, ToothCondition> = {
   48: 'extraccion',
 }
 
+// Tipos para Odontograma V2 (con símbolos y leyenda)
+export type ToothSymbol = 'amalgama' | 'ausente' | 'caries' | 'corona' | 'extraccion' | 'endodoncia' | 'retenido' | 'implante'
+
+export type ToothFindingV2 = {
+  toothId: string
+  simbolos: { tipo: ToothSymbol; color: string }[]
+  observaciones: string
+  tratamientoSugerido?: string
+}
+
+export type OdontogramV2Finding = Record<string, ToothFindingV2>
+
+// Tipos para Odontograma V3 (por superficies)
+export type Surface = 'oclusal' | 'bucal' | 'lingual' | 'mesial' | 'distal'
+export type SurfaceCondition = 'normal' | 'caries' | 'restauracion' | 'desgaste' | 'mancha'
+
+export type ToothFindingV3 = {
+  toothId: string
+  superficies: Record<Surface, { condicion: SurfaceCondition; observacion?: string }>
+  diagnostico?: string
+  tratamientoSugerido?: string
+}
+
+export type OdontogramV3Finding = Record<string, ToothFindingV3>
+
 export const clinicalHistory = [
   {
     fecha: '2026-07-14',
