@@ -1,12 +1,16 @@
 'use client'
 
 import { useState } from 'react'
-import { ToothFindingV3, Surface, SurfaceCondition, patients } from '@/lib/data'
+import { useRouter } from 'next/navigation'
+import { ToothFindingV3, Surface, SurfaceCondition, patients, suggestTreatmentsFromFindings } from '@/lib/data'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { AlertCircle, CheckCircle2, ArrowRight } from 'lucide-react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { useOdontogramFindings } from '@/lib/hooks/useOdontogramFindings'
 
 const SURFACE_COLORS: Record<SurfaceCondition, string> = {
   normal: 'bg-green-100 border-green-400',
@@ -34,13 +38,17 @@ const getSurfaceLabel = (surface: Surface): string => {
 }
 
 export function OdontogramSuperficies() {
+  const router = useRouter()
   const [pacienteId, setPacienteId] = useState('P-001')
   const [selectedTooth, setSelectedTooth] = useState<string | null>(null)
   const [selectedSurface, setSelectedSurface] = useState<Surface>('oclusal')
   const [selectedCondition, setSelectedCondition] = useState<SurfaceCondition>('normal')
   const [findings, setFindings] = useState<Record<string, ToothFindingV3>>({})
+  const [savedSuccess, setSavedSuccess] = useState(false)
+  const [generatingBudget, setGeneratingBudget] = useState(false)
 
   const paciente = patients.find((p) => p.id === pacienteId) ?? patients[0]
+  const { saveAll: persistFindings } = useOdontogramFindings(pacienteId, 'superficies')
 
   const initializeTooth = (toothId: string) => {
     if (!findings[toothId]) {
@@ -85,6 +93,30 @@ export function OdontogramSuperficies() {
     if (!finding) return SURFACE_COLORS.normal
     return SURFACE_COLORS[finding.superficies[surface].condicion]
   }
+
+  const handleSaveFindings = () => {
+    if (Object.keys(findings).length === 0) {
+      return
+    }
+    persistFindings(findings)
+    setSavedSuccess(true)
+    setTimeout(() => setSavedSuccess(false), 3000)
+  }
+
+  const handleGenerateBudget = () => {
+    if (Object.keys(findings).length === 0) {
+      return
+    }
+    setGeneratingBudget(true)
+    // Persist findings first
+    persistFindings(findings)
+    
+    // Navigate with findings encoded in URL
+    const findingsData = encodeURIComponent(JSON.stringify(findings))
+    router.push(`/presupuestos/desde-odontograma?pacienteId=${pacienteId}&hallazgos=${findingsData}`)
+  }
+
+  const summary = Object.keys(findings).length > 0 ? suggestTreatmentsFromFindings(findings) : []
 
   return (
     <div className="space-y-6">
@@ -309,22 +341,73 @@ export function OdontogramSuperficies() {
             </Card>
           )}
 
+          {/* Success Alert */}
+          {savedSuccess && (
+            <Alert className="bg-success/10 border-success text-success-foreground">
+              <CheckCircle2 className="h-4 w-4" />
+              <AlertDescription>Hallazgos guardados exitosamente</AlertDescription>
+            </Alert>
+          )}
+
           {/* Summary */}
           {Object.keys(findings).length > 0 && (
-            <Card className="bg-success/5 border-success/20">
-              <CardHeader>
-                <CardTitle className="text-base">Piezas documentadas</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                  {Object.entries(findings).map(([toothId]) => (
-                    <Badge key={toothId} variant="secondary">
-                      Pieza {toothId}
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            <>
+              <Card className="bg-success/5 border-success/20">
+                <CardHeader>
+                  <CardTitle className="text-base">Piezas documentadas</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    {Object.entries(findings).map(([toothId]) => (
+                      <Badge key={toothId} variant="secondary">
+                        Pieza {toothId}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Suggested Treatments */}
+              {summary.length > 0 && (
+                <Card className="bg-muted/50">
+                  <CardHeader>
+                    <CardTitle className="text-base">Tratamientos sugeridos</CardTitle>
+                    <CardDescription>Basados en los hallazgos documentados</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {summary.map((item) => (
+                        <div key={item.pieza} className="border-l-2 border-primary/50 pl-3">
+                          <div className="font-medium text-sm">Pieza {item.pieza}</div>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {item.tratamientos.map((t) => (
+                              <Badge key={t.nombre} variant="outline" className="text-xs">
+                                {t.nombre} (S/ {t.costo})
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 flex-col md:flex-row">
+                <Button onClick={handleSaveFindings} className="md:flex-1" variant="outline">
+                  Guardar Hallazgos
+                </Button>
+                <Button
+                  onClick={handleGenerateBudget}
+                  disabled={generatingBudget}
+                  className="md:flex-1"
+                >
+                  {generatingBudget ? 'Generando...' : 'Generar Presupuesto'}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

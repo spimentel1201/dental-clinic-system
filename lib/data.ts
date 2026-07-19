@@ -368,6 +368,84 @@ export type ToothFindingV3 = {
 
 export type OdontogramV3Finding = Record<string, ToothFindingV3>
 
+// Mappings de condiciones de superficies a tratamientos sugeridos
+export type TreatmentMapping = {
+  condicion: SurfaceCondition
+  tratamientos: { nombre: string; costo: number; descripcion: string }[]
+}
+
+export const SURFACE_TREATMENT_MAPPINGS: TreatmentMapping[] = [
+  {
+    condicion: 'normal',
+    tratamientos: [
+      { nombre: 'Profilaxis', costo: 50, descripcion: 'Limpieza y pulido dental preventivo' },
+    ],
+  },
+  {
+    condicion: 'caries',
+    tratamientos: [
+      { nombre: 'Curación de caries', costo: 120, descripcion: 'Remoción de caries y restauración con resina' },
+      { nombre: 'Restauración de resina compuesta', costo: 150, descripcion: 'Restauración estética de caries' },
+      { nombre: 'Incrustación de resina', costo: 200, descripcion: 'Incrustación para caries extensas' },
+    ],
+  },
+  {
+    condicion: 'restauracion',
+    tratamientos: [
+      { nombre: 'Revisión y pulido', costo: 60, descripcion: 'Control de restauración existente' },
+      { nombre: 'Reemplazo de restauración', costo: 140, descripcion: 'Remover y colocar restauración nueva' },
+    ],
+  },
+  {
+    condicion: 'desgaste',
+    tratamientos: [
+      { nombre: 'Restauración por desgaste', costo: 130, descripcion: 'Restauración para desgaste oclusal' },
+      { nombre: 'Ortodoncia preventiva', costo: 250, descripcion: 'Evaluación para corrección de oclusión' },
+    ],
+  },
+  {
+    condicion: 'mancha',
+    tratamientos: [
+      { nombre: 'Blanqueamiento', costo: 180, descripcion: 'Blanqueamiento dental profesional' },
+      { nombre: 'Limpieza profunda', costo: 70, descripcion: 'Destartraje y pulido' },
+    ],
+  },
+]
+
+// Función para sugerir tratamientos basados en hallazgos
+export function suggestTreatmentsFromFindings(findings: OdontogramV3Finding): { pieza: string; tratamientos: { nombre: string; costo: number }[] }[] {
+  const result: { pieza: string; tratamientos: { nombre: string; costo: number }[] }[] = []
+
+  Object.entries(findings).forEach(([toothId, finding]) => {
+    const tratamientosSet = new Set<string>()
+    const costos = new Map<string, number>()
+
+    Object.values(finding.superficies).forEach((surface) => {
+      const mapping = SURFACE_TREATMENT_MAPPINGS.find((m) => m.condicion === surface.condicion)
+      if (mapping) {
+        mapping.tratamientos.forEach((t) => {
+          tratamientosSet.add(t.nombre)
+          if (!costos.has(t.nombre)) {
+            costos.set(t.nombre, t.costo)
+          }
+        })
+      }
+    })
+
+    if (tratamientosSet.size > 0) {
+      result.push({
+        pieza: toothId,
+        tratamientos: Array.from(tratamientosSet).map((nombre) => ({
+          nombre,
+          costo: costos.get(nombre) || 0,
+        })),
+      })
+    }
+  })
+
+  return result
+}
+
 export const clinicalHistory = [
   {
     fecha: '2026-07-14',
