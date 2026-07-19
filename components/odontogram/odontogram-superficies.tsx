@@ -129,10 +129,10 @@ export function OdontogramSuperficies() {
           </div>
 
           {/* Odontogram grid with surfaces */}
-          <div className="space-y-4">
+          <div className="space-y-6">
             <label className="text-sm font-medium block">Haz clic en una pieza para editar superficies</label>
             {TEETH_FDI.map((row, rowIdx) => (
-              <div key={rowIdx} className="flex justify-center gap-3">
+              <div key={rowIdx} className="flex justify-center gap-6 flex-wrap">
                 {row.map((toothId) => {
                   const isSelected = selectedTooth === toothId
                   const finding = findings[toothId]
@@ -143,26 +143,74 @@ export function OdontogramSuperficies() {
                         setSelectedTooth(toothId)
                         initializeTooth(toothId)
                       }}
-                      className={`w-16 h-16 border-2 rounded-lg transition-all flex flex-col items-center justify-center p-1 ${
+                      className={`transition-all p-2 rounded-lg ${
                         isSelected
-                          ? 'border-primary bg-primary/10'
-                          : finding
-                            ? 'border-success bg-success/10'
-                            : 'border-border hover:border-primary/50'
+                          ? 'bg-primary/10 ring-2 ring-primary'
+                          : 'hover:bg-muted'
                       }`}
                     >
-                      <div className="font-bold text-sm">{toothId}</div>
-                      {finding && (
-                        <div className="grid grid-cols-3 gap-0.5 mt-1">
-                          {SURFACES.map((surface) => (
-                            <div
-                              key={surface}
-                              className={`w-2 h-2 rounded-sm ${SURFACE_COLORS[finding.superficies[surface].condicion]}`}
-                              title={surface}
-                            />
-                          ))}
+                      <div className="w-20 h-24 flex flex-col items-center justify-center gap-1">
+                        {/* Oclusal surface - top */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            if (selectedTooth === toothId) setSelectedSurface('oclusal')
+                          }}
+                          className={`w-12 h-6 rounded-full border-2 ${getSurfaceColor(toothId, 'oclusal')} cursor-pointer hover:opacity-80`}
+                          title="Oclusal"
+                        />
+
+                        {/* Middle row: Bucal, Central, Lingual */}
+                        <div className="flex gap-1">
+                          {/* Bucal surface - left */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              if (selectedTooth === toothId) setSelectedSurface('bucal')
+                            }}
+                            className={`w-5 h-8 rounded border-2 ${getSurfaceColor(toothId, 'bucal')} cursor-pointer hover:opacity-80`}
+                            title="Bucal"
+                          />
+
+                          {/* Central tooth ID - center */}
+                          <div className="w-6 h-8 rounded-lg border-2 border-muted-foreground/30 flex items-center justify-center bg-muted/50 font-bold text-xs text-muted-foreground">
+                            {toothId}
+                          </div>
+
+                          {/* Lingual surface - right */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              if (selectedTooth === toothId) setSelectedSurface('lingual')
+                            }}
+                            className={`w-5 h-8 rounded border-2 ${getSurfaceColor(toothId, 'lingual')} cursor-pointer hover:opacity-80`}
+                            title="Lingual"
+                          />
                         </div>
-                      )}
+
+                        {/* Mesial/Distal surfaces - bottom (combined row) */}
+                        <div className="flex gap-1 w-full justify-center">
+                          {/* Mesial - left-bottom */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              if (selectedTooth === toothId) setSelectedSurface('mesial')
+                            }}
+                            className={`flex-1 h-5 rounded-sm border-2 ${getSurfaceColor(toothId, 'mesial')} cursor-pointer hover:opacity-80`}
+                            title="Mesial"
+                          />
+
+                          {/* Distal - right-bottom */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              if (selectedTooth === toothId) setSelectedSurface('distal')
+                            }}
+                            className={`flex-1 h-5 rounded-sm border-2 ${getSurfaceColor(toothId, 'distal')} cursor-pointer hover:opacity-80`}
+                            title="Distal"
+                          />
+                        </div>
+                      </div>
                     </button>
                   )
                 })}
@@ -175,32 +223,49 @@ export function OdontogramSuperficies() {
             <Card className="bg-muted/50">
               <CardHeader>
                 <CardTitle className="text-base">Editar Pieza {selectedTooth}</CardTitle>
+                <CardDescription>Selecciona una superficie y especifica su estado</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* Surface buttons */}
-                <div className="grid grid-cols-5 gap-2">
-                  {SURFACES.map((surface) => {
-                    const condition = findings[selectedTooth].superficies[surface].condicion
-                    return (
-                      <div key={surface} className="text-center">
-                        <div className="text-xs font-medium mb-1 capitalize">{getSurfaceLabel(surface)}</div>
-                        <Select value={condition} onValueChange={(v) => handleSurfaceChange(surface, v as SurfaceCondition)}>
-                          <SelectTrigger className="h-8">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              {Object.keys(SURFACE_COLORS).map((cond) => (
-                                <SelectItem key={cond} value={cond}>
-                                  {cond}
-                                </SelectItem>
-                              ))}
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )
-                  })}
+                {/* Surface selector with labels */}
+                <div className="space-y-3">
+                  <label className="text-sm font-medium">Superficies</label>
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                    {SURFACES.map((surface) => {
+                      const condition = findings[selectedTooth].superficies[surface].condicion
+                      const isActive = selectedSurface === surface
+                      return (
+                        <div key={surface} className="flex flex-col gap-1">
+                          <button
+                            onClick={() => setSelectedSurface(surface)}
+                            className={`text-xs font-medium p-2 rounded capitalize transition-all ${
+                              isActive
+                                ? 'bg-primary text-primary-foreground ring-2 ring-primary/50'
+                                : 'bg-muted hover:bg-muted/80'
+                            }`}
+                          >
+                            {surface === 'oclusal' ? 'Oclusal' : surface === 'bucal' ? 'Bucal' : surface === 'lingual' ? 'Lingual' : surface === 'mesial' ? 'Mesial' : 'Distal'}
+                          </button>
+                          <Select
+                            value={condition}
+                            onValueChange={(v) => handleSurfaceChange(surface, v as SurfaceCondition)}
+                          >
+                            <SelectTrigger className="h-8 text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                {Object.keys(SURFACE_COLORS).map((cond) => (
+                                  <SelectItem key={cond} value={cond}>
+                                    {cond}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
 
                 {/* Diagnosis */}
