@@ -198,36 +198,48 @@ function PresupuestoDesdeOdontogramaContent() {
                 {budgetItems.length === 0 ? (
                   <p className="text-sm text-muted-foreground">No hay tratamientos agregados</p>
                 ) : (
-                  budgetItems.map((item, idx) => (
-                    <div key={idx} className="flex gap-3 pb-4 border-b last:border-0 last:pb-0">
-                      <div className="flex-1 space-y-2">
+                  <>
+                    {/* Headers */}
+                    <div className="grid grid-cols-12 gap-3 px-3 py-2 mb-2 bg-muted/50 rounded border border-border">
+                      <div className="col-span-2 text-xs font-semibold text-muted-foreground">Pieza</div>
+                      <div className="col-span-4 text-xs font-semibold text-muted-foreground">Tratamiento</div>
+                      <div className="col-span-2 text-xs font-semibold text-muted-foreground">Costo</div>
+                      <div className="col-span-2 text-xs font-semibold text-muted-foreground">Cantidad</div>
+                      <div className="col-span-2"></div>
+                    </div>
+
+                    {/* Items */}
+                    {budgetItems.map((item, idx) => (
+                    <div key={idx} className="grid grid-cols-12 gap-3 pb-4 items-end last:pb-0">
+                      <div className="col-span-2">
                         <Input
-                          placeholder="Pieza"
+                          placeholder="Ej: 43"
                           value={item.pieza}
                           onChange={(e) => handleUpdateItem(idx, 'pieza', e.target.value)}
                           className="text-sm"
                         />
                       </div>
-                      <div className="flex-1 space-y-2">
+                      <div className="col-span-4">
                         <Input
-                          placeholder="Tratamiento"
+                          placeholder="Ej: Curación de caries"
                           value={item.tratamiento}
                           onChange={(e) => handleUpdateItem(idx, 'tratamiento', e.target.value)}
                           className="text-sm"
                         />
                       </div>
-                      <div className="w-24 space-y-2">
+                      <div className="col-span-2">
                         <Input
-                          placeholder="Costo"
+                          placeholder="0.00"
                           type="number"
+                          step="0.01"
                           value={item.costo}
                           onChange={(e) => handleUpdateItem(idx, 'costo', parseFloat(e.target.value) || 0)}
                           className="text-sm"
                         />
                       </div>
-                      <div className="w-20 space-y-2">
+                      <div className="col-span-2">
                         <Input
-                          placeholder="Cantidad"
+                          placeholder="1"
                           type="number"
                           min="1"
                           value={item.cantidad}
@@ -235,16 +247,19 @@ function PresupuestoDesdeOdontogramaContent() {
                           className="text-sm"
                         />
                       </div>
-                      <Button
-                        onClick={() => handleRemoveItem(idx)}
-                        variant="ghost"
-                        size="sm"
-                        className="text-destructive hover:text-destructive"
-                      >
-                        ✕
-                      </Button>
+                      <div className="col-span-2 flex justify-end">
+                        <Button
+                          onClick={() => handleRemoveItem(idx)}
+                          variant="ghost"
+                          size="sm"
+                          className="text-destructive hover:text-destructive"
+                        >
+                          ✕
+                        </Button>
+                      </div>
                     </div>
-                  ))
+                    ))}
+                  </>
                 )}
               </CardContent>
             </Card>
