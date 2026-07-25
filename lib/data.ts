@@ -96,7 +96,87 @@ export type Appointment = {
   diagnosis?: string
   notas?: AppointmentNote[]
   presupuestoId?: string
+  specialistId?: string
+  clinicalNotes?: {
+    diagnosis?: string
+    findings?: string
+    treatmentDone?: string
+    sessionNumber?: number
+  }
 }
+
+export const externalSpecialists: ExternalSpecialist[] = [
+  {
+    id: 'ES-001',
+    nombres: 'Carlos',
+    apellidos: 'Mendoza',
+    especialidad: 'Ortodoncista',
+    email: 'carlos.mendoza@dental.com',
+    telefono: '912 345 678',
+    tarifa: 200,
+    saldo: 450,
+    estado: 'activo',
+    porcentajeDescuento: 10,
+  },
+  {
+    id: 'ES-002',
+    nombres: 'Patricia',
+    apellidos: 'Gutierrez',
+    especialidad: 'Periodoncista',
+    email: 'patricia.gutierrez@dental.com',
+    telefono: '934 567 890',
+    tarifa: 250,
+    saldo: 0,
+    estado: 'activo',
+    porcentajeDescuento: 5,
+  },
+]
+
+export const specialistHistories: SpecialistClinicalHistory[] = [
+  {
+    id: 'SH-001',
+    pacienteId: 'P-005',
+    specialistId: 'ES-001',
+    fecha: '2026-07-15',
+    descripcion: 'Evaluación de ortodoncia. Requiere corrección de mordida cruzada en sector anterior. Presupuesto total para 4 sesiones de ajuste.',
+    diagnostico: 'Mordida cruzada anterior, apiñamiento leve',
+    presupuestoTotal: 800,
+    fechaProximaCita: '2026-07-29',
+    sesiones: [
+      { id: 'SS-001', numero: 1, monto: 200, estado: 'completado', fechaPago: '2026-07-15' },
+      { id: 'SS-002', numero: 2, monto: 200, estado: 'pendiente' },
+      { id: 'SS-003', numero: 3, monto: 200, estado: 'pendiente' },
+      { id: 'SS-004', numero: 4, monto: 200, estado: 'pendiente' },
+    ],
+  },
+]
+
+export const clinicalPhotos: ClinicalPhoto[] = [
+  {
+    id: 'CP-001',
+    pacienteId: 'P-001',
+    src: 'https://images.unsplash.com/photo-1606811841298-23d43a18f5fa?w=400&h=400&fit=crop',
+    alt: 'Vista frontal de dentadura antes del tratamiento',
+    fecha: '2026-07-14',
+    doctor: 'Dra. Salas',
+  },
+  {
+    id: 'CP-002',
+    pacienteId: 'P-001',
+    src: 'https://images.unsplash.com/photo-1579154204601-01d82e4c3d01?w=400&h=400&fit=crop',
+    alt: 'Vista oclusal de piezas superiores',
+    fecha: '2026-07-14',
+    doctor: 'Dra. Salas',
+  },
+  {
+    id: 'CP-003',
+    pacienteId: 'P-003',
+    src: 'https://images.unsplash.com/photo-1606811841298-23d43a18f5fa?w=400&h=400&fit=crop',
+    alt: 'Blanqueamiento dental - antes',
+    fecha: '2026-07-13',
+    doctor: 'Dra. Salas',
+  },
+]
 
 export const appointments: Appointment[] = [
   { id: 'C-101', pacienteId: 'P-001', paciente: 'María Elena Quispe', celular: '987 654 321', fecha: '2026-07-17', hora: '09:00', duracionMin: 60, tratamiento: 'Endodoncia pieza 1.1', doctor: 'Dra. Salas', estado: 'confirmada' },
@@ -137,6 +217,49 @@ export type BudgetItem = {
   costo: number
   sesionId: string
   estado: 'pendiente' | 'en_proceso' | 'completado'
+  costoEditado?: number
+}
+
+export type ClinicalPhoto = {
+  id: string
+  pacienteId: string
+  src: string
+  alt: string
+  fecha: string
+  doctor: string
+}
+
+export type SpecialistSession = {
+  id: string
+  numero: number
+  monto: number
+  estado: 'pendiente' | 'pagado'
+  fechaPago?: string
+}
+
+export type SpecialistClinicalHistory = {
+  id: string
+  pacienteId: string
+  specialistId: string
+  fecha?: string
+  descripcion: string
+  diagnostico?: string
+  presupuestoTotal: number
+  fechaProximaCita?: string
+  sesiones: SpecialistSession[]
+}
+
+export type ExternalSpecialist = {
+  id: string
+  nombres: string
+  apellidos: string
+  especialidad: string
+  email: string
+  telefono: string
+  tarifa: number
+  saldo: number
+  estado: 'activo' | 'inactivo'
+  porcentajeDescuento?: number
 }
 
 export type Budget = {

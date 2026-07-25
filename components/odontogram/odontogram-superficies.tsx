@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ToothFindingV3, Surface, SurfaceCondition, patients, suggestTreatmentsFromFindings } from '@/lib/data'
+import { PatientSearchBar } from '@/components/patients/patient-search-bar'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -130,33 +131,39 @@ export function OdontogramSuperficies() {
         <CardContent className="space-y-6">
           {/* Patient selector */}
           <div>
-            <label className="text-sm font-medium">Paciente</label>
-            <Select value={pacienteId} onValueChange={(v) => v && setPacienteId(v)}>
-              <SelectTrigger className="w-full">
-                <SelectValue>{`${paciente.nombres} ${paciente.apellidos}`}</SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {patients.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>
-                      {`${p.nombres} ${p.apellidos}`}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+            <label className="text-sm font-medium mb-2 block">Paciente</label>
+            <PatientSearchBar
+              patients={patients}
+              value={pacienteId}
+              onSelect={setPacienteId}
+              placeholder="Buscar paciente"
+            />
           </div>
 
-          {/* Legend */}
+          {/* Legend with condition tags */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Leyenda de Condiciones</label>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-              {Object.entries(SURFACE_COLORS).map(([condition, colorClass]) => (
-                <div key={condition} className="flex items-center gap-2">
-                  <div className={`w-4 h-4 rounded ${colorClass}`} />
-                  <span className="text-sm capitalize">{condition}</span>
-                </div>
-              ))}
+            <label className="text-sm font-medium">Estado/Condiciones dentales</label>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(SURFACE_COLORS).map(([condition, colorClass]) => {
+                const conditionLabel = condition === 'normal' ? 'Sano' :
+                                      condition === 'caries' ? 'Caries' :
+                                      condition === 'restauracion' ? 'Curación/Resina' :
+                                      condition === 'desgaste' ? 'Desgaste' :
+                                      'Mancha'
+                return (
+                  <button
+                    key={condition}
+                    onClick={() => setSelectedCondition(condition as SurfaceCondition)}
+                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all border-2 cursor-pointer ${
+                      selectedCondition === condition
+                        ? `${colorClass} ring-2 ring-offset-2 ring-primary shadow-md`
+                        : `${colorClass} opacity-75 hover:opacity-100`
+                    }`}
+                  >
+                    {conditionLabel}
+                  </button>
+                )
+              })}
             </div>
           </div>
 

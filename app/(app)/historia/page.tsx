@@ -1,4 +1,5 @@
-import type { Metadata } from 'next'
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
 import {
@@ -7,12 +8,12 @@ import {
   IdCard,
   Cake,
   Camera,
-  Plus,
   Smile,
 } from 'lucide-react'
 import { AppHeader } from '@/components/app-header'
 import { NewPatientDialog } from '@/components/patients/new-patient-dialog'
 import { ConsentPdfButton } from '@/components/patients/consent-pdf-button'
+import { AddClinicalNoteDialog } from '@/components/clinical-notes/add-clinical-note-dialog'
 import {
   Card,
   CardContent,
@@ -25,12 +26,8 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
-import { patients, clinicalHistory, formatSoles } from '@/lib/data'
+import { patients, clinicalHistory, clinicalPhotos, formatSoles } from '@/lib/data'
 import { cn } from '@/lib/utils'
-
-export const metadata: Metadata = {
-  title: 'Historia clínica — DentaClinic',
-}
 
 const alertVariant: Record<string, string> = {
   alergia: 'Alergia',
@@ -38,15 +35,12 @@ const alertVariant: Record<string, string> = {
   embarazo: 'Embarazo',
 }
 
-const clinicalPhotos = [
-  { src: '/images/foto-clinica-1.png', alt: 'Vista frontal intraoral — 18/06/2026' },
-  { src: '/images/foto-clinica-2.png', alt: 'Vista oclusal arcada superior — 18/06/2026' },
-  { src: '/images/foto-clinica-3.png', alt: 'Radiografía panorámica — 18/06/2026' },
-]
+// Filter photos for current patient
+const patientPhotos = clinicalPhotos.filter((p) => p.pacienteId === 'P-001')
 
 export default function HistoriaPage() {
   const patient = patients[0] // María Elena Quispe — ficha activa
-  const emptySlots = 6 - clinicalPhotos.length
+  const emptySlots = 6 - patientPhotos.length
 
   return (
     <>
@@ -201,10 +195,11 @@ export default function HistoriaPage() {
                     <CardTitle>Evolución clínica</CardTitle>
                     <CardDescription>Registro cronológico de procedimientos</CardDescription>
                   </div>
-                  <Button size="sm" variant="outline">
-                    <Plus data-icon="inline-start" />
-                    Nueva nota
-                  </Button>
+                  <AddClinicalNoteDialog
+                    onSave={(note) => {
+                      console.log('[v0] Clinical note added:', note)
+                    }}
+                  />
                 </div>
               </CardHeader>
               <CardContent className="flex flex-col">
@@ -240,7 +235,7 @@ export default function HistoriaPage() {
                   <div className="flex flex-col gap-1">
                     <CardTitle>Fotografías clínicas</CardTitle>
                     <CardDescription>
-                      {clinicalPhotos.length} de 6 fotos utilizadas
+                      {patientPhotos.length} de 6 fotos utilizadas
                     </CardDescription>
                   </div>
                   <Button size="sm" variant="outline">
@@ -251,9 +246,9 @@ export default function HistoriaPage() {
               </CardHeader>
               <CardContent className="flex flex-col gap-4">
                 <div className="grid grid-cols-2 gap-3">
-                  {clinicalPhotos.map((photo) => (
+                  {patientPhotos.map((photo) => (
                     <div
-                      key={photo.src}
+                      key={photo.id}
                       className="relative aspect-square overflow-hidden rounded-lg border"
                     >
                       <Image
@@ -263,6 +258,10 @@ export default function HistoriaPage() {
                         sizes="(max-width: 1280px) 40vw, 15vw"
                         className="object-cover"
                       />
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-2 py-1">
+                        <div className="text-xs text-white font-medium">{photo.fecha}</div>
+                        <div className="text-xs text-gray-200">{photo.doctor}</div>
+                      </div>
                     </div>
                   ))}
                   {Array.from({ length: emptySlots }).map((_, i) => (

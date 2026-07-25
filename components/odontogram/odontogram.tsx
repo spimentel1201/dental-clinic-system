@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import {
@@ -117,6 +118,7 @@ export function Odontogram() {
   const [teeth, setTeeth] = useState<Record<number, ToothCondition>>(initialToothStates)
   const [activeCondition, setActiveCondition] = useState<ToothCondition>('caries')
   const [selectedTooth, setSelectedTooth] = useState<number | null>(null)
+  const [editedCosts, setEditedCosts] = useState<Record<string, number>>({})
 
   function handleToothClick(n: number) {
     setSelectedTooth(n)
@@ -143,13 +145,19 @@ export function Odontogram() {
     () =>
       findings
         .filter((f) => tariff[f.condicion])
-        .map((f) => ({
-          pieza: f.pieza,
-          ...(tariff[f.condicion] as { tratamiento: string; costo: number }),
-        })),
-    [findings],
+        .map((f) => {
+          const key = `${f.pieza}-${f.condicion}`
+          const baseCost = (tariff[f.condicion] as { tratamiento: string; costo: number }).costo
+          return {
+            key,
+            pieza: f.pieza,
+            ...(tariff[f.condicion] as { tratamiento: string; costo: number }),
+            displayCost: editedCosts[key] ?? baseCost,
+          }
+        }),
+    [findings, editedCosts],
   )
-  const budgetTotal = budgetItems.reduce((s, i) => s + i.costo, 0)
+  const budgetTotal = budgetItems.reduce((s, i) => s + i.displayCost, 0)
 
   const renderRow = (nums: number[]) => (
     <div className="flex">
@@ -298,14 +306,30 @@ export function Odontogram() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {budgetItems.map((item, i) => (
-                  <TableRow key={i}>
-                    <TableCell>{item.tratamiento}</TableCell>
-                    <TableCell className="tabular-nums">
+                {budgetItems.map((item) => (
+                  <TableRow key={item.key}>
+                    <TableCell className="text-sm">{item.tratamiento}</TableCell>
+                    <TableCell className="tabular-nums text-sm">
                       {String(item.pieza).slice(0, 1)}.{String(item.pieza).slice(1)}
                     </TableCell>
-                    <TableCell className="text-right tabular-nums">
-                      {formatSoles(item.costo)}
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <span className="text-xs text-muted-foreground">S/</span>
+                        <Input
+                          type="number"
+                          min="0"
+                          step="10"
+                          value={item.displayCost}
+                          onChange={(e) => {
+                            const newCost = parseFloat(e.target.value) || 0
+                            setEditedCosts((prev) => ({
+                              ...prev,
+                              [item.key]: newCost,
+                            }))
+                          }}
+                          className="h-8 w-20 text-right text-sm"
+                        />
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

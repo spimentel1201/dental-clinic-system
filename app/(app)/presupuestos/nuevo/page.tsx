@@ -5,19 +5,12 @@ import { useRouter } from 'next/navigation'
 import { ChevronLeft, Plus, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { PatientSearchBar } from '@/components/patients/patient-search-bar'
 import {
   Field,
   FieldGroup,
   FieldLabel,
 } from '@/components/ui/field'
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
@@ -122,20 +115,12 @@ export default function NuevoPresupuestoPage() {
               <CardContent className="space-y-4">
                 <Field>
                   <FieldLabel htmlFor="paciente">Seleccionar paciente</FieldLabel>
-                  <Select value={selectedPatient} onValueChange={(v) => v && setSelectedPatient(v)}>
-                    <SelectTrigger id="paciente" className="w-full">
-                      <SelectValue placeholder="Elige un paciente" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {patients.map((p) => (
-                          <SelectItem key={p.id} value={p.id}>
-                            {p.nombres} {p.apellidos}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
+                  <PatientSearchBar
+                    patients={patients}
+                    value={selectedPatient}
+                    onSelect={setSelectedPatient}
+                    placeholder="Buscar y seleccionar paciente"
+                  />
                 </Field>
 
                 {patient && (

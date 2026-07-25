@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { PatientSearchBar } from '@/components/patients/patient-search-bar'
 import {
   Dialog,
   DialogClose,
@@ -68,20 +69,12 @@ export function NewAppointmentDialog() {
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor="cita-paciente">Paciente</FieldLabel>
-              <Select value={pacienteId} onValueChange={(v) => v && setPacienteId(String(v))}>
-                <SelectTrigger id="cita-paciente" className="w-full">
-                  <SelectValue>{`${paciente.nombres} ${paciente.apellidos} — ${paciente.celular}`}</SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {patients.map((p) => (
-                      <SelectItem key={p.id} value={p.id}>
-                        {p.nombres} {p.apellidos} — {p.celular}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+              <PatientSearchBar
+                patients={patients}
+                value={pacienteId}
+                onSelect={setPacienteId}
+                placeholder="Buscar paciente"
+              />
             </Field>
 
             <div className="grid grid-cols-2 gap-4">

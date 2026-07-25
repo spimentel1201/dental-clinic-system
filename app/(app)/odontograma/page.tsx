@@ -2,17 +2,10 @@
 
 import { useState } from 'react'
 import { Odontogram } from '@/components/odontogram/odontogram'
+import { PatientSearchBar } from '@/components/patients/patient-search-bar'
 import { patients } from '@/lib/data'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Printer, Save } from 'lucide-react'
 
 export default function OdontogramaPage() {
@@ -29,20 +22,13 @@ export default function OdontogramaPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Select value={pacienteId} onValueChange={(v) => v && setPacienteId(v)}>
-            <SelectTrigger className="w-56">
-              <SelectValue>{`${paciente.nombres} ${paciente.apellidos}`}</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {patients.map((p) => (
-                  <SelectItem key={p.id} value={p.id}>
-                    {`${p.nombres} ${p.apellidos}`}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+          <div className="w-56">
+            <PatientSearchBar
+              patients={patients}
+              value={pacienteId}
+              onSelect={setPacienteId}
+            />
+          </div>
           <Button variant="outline">
             <Printer data-icon="inline-start" />
             Imprimir
