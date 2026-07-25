@@ -22,7 +22,12 @@ const navItems = [
   { href: '/presupuestos', label: 'Presupuestos', icon: DollarSign },
   { href: '/pagos', label: 'Pagos y caja', icon: Wallet },
   { href: '/historia', label: 'Historia clínica', icon: FileText },
-  { href: '/odontograma', label: 'Odontograma', icon: Smile },
+]
+
+const odontogramaItems = [
+  { href: '/odontograma', label: 'Simple (FDI)' },
+  { href: '/odontograma-leyenda', label: 'Con Leyenda' },
+  { href: '/odontograma-superficies', label: 'Por Superficies' },
 ]
 
 export function AppSidebar() {
@@ -62,6 +67,34 @@ export function AppSidebar() {
             </Link>
           )
         })}
+
+        {/* Odontogram submenu */}
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/75">
+            <Smile className="size-4.5 shrink-0" aria-hidden="true" />
+            Odontograma
+          </div>
+          <div className="ml-6 flex flex-col gap-1">
+            {odontogramaItems.map((item) => {
+              const active = pathname === item.href
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={active ? 'page' : undefined}
+                  className={cn(
+                    'rounded-lg px-3 py-1.5 text-xs font-medium transition-colors',
+                    active
+                      ? 'bg-sidebar-primary text-sidebar-primary-foreground'
+                      : 'text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+                  )}
+                >
+                  {item.label}
+                </Link>
+              )
+            })}
+          </div>
+        </div>
       </nav>
 
       <div className="flex flex-col gap-1 border-t border-sidebar-border p-3">
