@@ -142,8 +142,8 @@ export function AddClinicalNoteDialog({ onSave }: ClinicalNoteFormProps) {
           </FieldGroup>
 
           <DialogFooter className="mt-6">
-            <DialogClose asChild>
-              <Button variant="outline">Cancelar</Button>
+            <DialogClose className="inline-flex shrink-0 items-center justify-center rounded-lg border border-border bg-background hover:bg-muted text-sm font-medium px-4 h-9">
+              Cancelar
             </DialogClose>
             <Button type="submit">Guardar nota</Button>
           </DialogFooter>

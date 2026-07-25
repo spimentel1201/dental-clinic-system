@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -46,7 +46,14 @@ const statusLabels: Record<Appointment['estado'], string> = {
 }
 
 export function MonthCalendar({ appointments, onAppointmentClick }: MonthCalendarProps) {
-  const [currentDate, setCurrentDate] = useState(new Date())
+  const [currentDate, setCurrentDate] = useState<Date | null>(null)
+
+  const [todayStr, setTodayStr] = useState<string>('')
+
+  useEffect(() => {
+    setCurrentDate(new Date())
+    setTodayStr(new Date().toISOString().split('T')[0])
+  }, [])
 
   const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
   const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0)
@@ -71,11 +78,11 @@ export function MonthCalendar({ appointments, onAppointmentClick }: MonthCalenda
   }
 
   const handlePrevMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))
+    if (currentDate) setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))
   }
 
   const handleNextMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))
+    if (currentDate) setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))
   }
 
   return (
@@ -84,7 +91,7 @@ export function MonthCalendar({ appointments, onAppointmentClick }: MonthCalenda
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl font-bold">
-              {MONTHS[currentDate.getMonth()]} {currentDate.getFullYear()}
+              {currentDate ? `${MONTHS[currentDate.getMonth()]} ${currentDate.getFullYear()}` : 'Calendario'}
             </h2>
           </div>
           <div className="flex gap-2">
@@ -110,10 +117,10 @@ export function MonthCalendar({ appointments, onAppointmentClick }: MonthCalenda
         <div className="grid grid-cols-7 gap-2">
           {weeks.map((week, weekIdx) =>
             week.map((date, dateIdx) => {
-              const isCurrentMonth = date.getMonth() === currentDate.getMonth()
+              const isCurrentMonth = date.getMonth() === currentDate?.getMonth()
               const dateStr = date.toISOString().split('T')[0]
               const dayAppointments = getAppointmentsForDate(date)
-              const isToday = new Date().toISOString().split('T')[0] === dateStr
+              const isToday = todayStr === dateStr
 
               return (
                 <div

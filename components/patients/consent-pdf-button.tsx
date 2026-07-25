@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { PdfPreviewDialog } from '@/components/pdf-preview-dialog'
@@ -17,6 +18,14 @@ export function ConsentPdfButton({
   edad: number
   alertas: string[]
 }) {
+  const [generationDate, setGenerationDate] = useState('')
+
+  useEffect(() => {
+    setGenerationDate(
+      new Date().toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' })
+    )
+  }, [])
+
   return (
     <PdfPreviewDialog
       trigger={
@@ -27,7 +36,7 @@ export function ConsentPdfButton({
       }
       doc={{
         title: 'Consentimiento informado para tratamiento odontológico',
-        subtitle: `Documento generado el ${new Date().toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' })}`,
+        subtitle: `Documento generado el ${generationDate}`,
         fileName: `consentimiento-${dni}.pdf`,
         signature: true,
         sections: [

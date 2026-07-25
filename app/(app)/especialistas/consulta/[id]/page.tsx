@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { ChevronLeft, Save, Calendar } from 'lucide-react'
 import Link from 'next/link'
@@ -18,22 +18,30 @@ export default function EspecialistaConsultaPage() {
   const params = useParams()
   const consultationId = params.id as string
 
-  // Mock data - en producción vendría de la base de datos
-  const consultation = {
-    id: consultationId,
-    pacienteId: 'P-001',
-    specialty: 'Ortodoncista',
-    appointmentDate: new Date().toISOString().split('T')[0],
-    createdAt: new Date().toISOString().split('T')[0],
-  }
-
-  const patient = patients.find((p) => p.id === consultation.pacienteId) || patients[0]
-
   const [description, setDescription] = useState('')
   const [diagnosis, setDiagnosis] = useState('')
   const [budget, setBudget] = useState<string>('')
   const [sessions, setSessions] = useState<number>(1)
   const [isSaving, setIsSaving] = useState(false)
+  const [consultationDates, setConsultationDates] = useState<{ appointmentDate: string; createdAt: string } | null>(null)
+
+  useEffect(() => {
+    setConsultationDates({
+      appointmentDate: new Date().toISOString().split('T')[0],
+      createdAt: new Date().toISOString().split('T')[0],
+    })
+  }, [])
+
+  // Mock data - en producción vendría de la base de datos
+  const consultation = {
+    id: consultationId,
+    pacienteId: 'P-001',
+    specialty: 'Ortodoncista',
+    appointmentDate: consultationDates?.appointmentDate || '',
+    createdAt: consultationDates?.createdAt || '',
+  }
+
+  const patient = patients.find((p) => p.id === consultation.pacienteId) || patients[0]
 
   const handleSave = async () => {
     if (!description.trim()) {

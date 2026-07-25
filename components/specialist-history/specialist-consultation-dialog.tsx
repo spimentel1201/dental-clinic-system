@@ -130,8 +130,8 @@ export function SpecialistConsultationDialog({
         </div>
 
         <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">Cancelar</Button>
+          <DialogClose className="inline-flex shrink-0 items-center justify-center rounded-lg border border-border bg-background hover:bg-muted text-sm font-medium px-4 h-9">
+            Cancelar
           </DialogClose>
           <Button onClick={handleSave}>Guardar Consulta</Button>
         </DialogFooter>

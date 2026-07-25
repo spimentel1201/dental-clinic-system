@@ -102,18 +102,19 @@ export default function ConfiguracionPage() {
   }
 
   const handleBackup = () => {
+    const now = new Date()
     const backupData = {
       clinica: clinicData,
       tarifas: tariffs,
       usuarios: users,
-      fecha: new Date().toISOString(),
+      fecha: now.toISOString(),
     }
     const dataStr = JSON.stringify(backupData, null, 2)
     const dataBlob = new Blob([dataStr], { type: 'application/json' })
     const url = URL.createObjectURL(dataBlob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `backup-dentaclinic-${new Date().toISOString().split('T')[0]}.json`
+    link.download = `backup-dentaclinic-${now.toISOString().split('T')[0]}.json`
     link.click()
     URL.revokeObjectURL(url)
   }
