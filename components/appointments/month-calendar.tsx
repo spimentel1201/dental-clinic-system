@@ -46,12 +46,11 @@ const statusLabels: Record<Appointment['estado'], string> = {
 }
 
 export function MonthCalendar({ appointments, onAppointmentClick }: MonthCalendarProps) {
-  const [currentDate, setCurrentDate] = useState<Date | null>(null)
+  const [currentDate, setCurrentDate] = useState<Date>(() => new Date())
 
   const [todayStr, setTodayStr] = useState<string>('')
 
   useEffect(() => {
-    setCurrentDate(new Date())
     setTodayStr(new Date().toISOString().split('T')[0])
   }, [])
 
