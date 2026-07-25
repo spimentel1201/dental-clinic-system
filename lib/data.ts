@@ -155,7 +155,7 @@ export const clinicalPhotos: ClinicalPhoto[] = [
   {
     id: 'CP-001',
     pacienteId: 'P-001',
-    src: 'https://images.unsplash.com/photo-1606811841298-23d43a18f5fa?w=400&h=400&fit=crop',
+    src: 'https://images.unsplash.com/photo-1588776694353-8e58a1e7dd0e?w=400&h=400&fit=crop&q=80',
     alt: 'Vista frontal de dentadura antes del tratamiento',
     fecha: '2026-07-14',
     doctor: 'Dra. Salas',
@@ -163,7 +163,7 @@ export const clinicalPhotos: ClinicalPhoto[] = [
   {
     id: 'CP-002',
     pacienteId: 'P-001',
-    src: 'https://images.unsplash.com/photo-1579154204601-01d82e4c3d01?w=400&h=400&fit=crop',
+    src: 'https://images.unsplash.com/photo-1609840442180-a6f1d9c42c86?w=400&h=400&fit=crop&q=80',
     alt: 'Vista oclusal de piezas superiores',
     fecha: '2026-07-14',
     doctor: 'Dra. Salas',
@@ -171,7 +171,7 @@ export const clinicalPhotos: ClinicalPhoto[] = [
   {
     id: 'CP-003',
     pacienteId: 'P-003',
-    src: 'https://images.unsplash.com/photo-1606811841298-23d43a18f5fa?w=400&h=400&fit=crop',
+    src: 'https://images.unsplash.com/photo-1580489944761-b6f5c9fbad9b?w=400&h=400&fit=crop&q=80',
     alt: 'Blanqueamiento dental - antes',
     fecha: '2026-07-13',
     doctor: 'Dra. Salas',
@@ -509,7 +509,7 @@ export type TreatmentMapping = {
 
 export const SURFACE_TREATMENT_MAPPINGS: TreatmentMapping[] = [
   {
-    condicion: 'normal',
+    condicion: 'sano',
     tratamientos: [
       { nombre: 'Profilaxis', costo: 50, descripcion: 'Limpieza y pulido dental preventivo' },
     ],
@@ -519,7 +519,6 @@ export const SURFACE_TREATMENT_MAPPINGS: TreatmentMapping[] = [
     tratamientos: [
       { nombre: 'Curación de caries', costo: 120, descripcion: 'Remoción de caries y restauración con resina' },
       { nombre: 'Restauración de resina compuesta', costo: 150, descripcion: 'Restauración estética de caries' },
-      { nombre: 'Incrustación de resina', costo: 200, descripcion: 'Incrustación para caries extensas' },
     ],
   },
   {
@@ -530,50 +529,77 @@ export const SURFACE_TREATMENT_MAPPINGS: TreatmentMapping[] = [
     ],
   },
   {
-    condicion: 'desgaste',
+    condicion: 'endodoncia',
     tratamientos: [
-      { nombre: 'Restauración por desgaste', costo: 130, descripcion: 'Restauración para desgaste oclusal' },
-      { nombre: 'Ortodoncia preventiva', costo: 250, descripcion: 'Evaluación para corrección de oclusión' },
+      { nombre: 'Endodoncia', costo: 700, descripcion: 'Tratamiento de conducto radicular' },
+      { nombre: 'Retratamiento endodóntico', costo: 850, descripcion: 'Retratamiento de conducto previo' },
     ],
   },
   {
-    condicion: 'mancha',
+    condicion: 'extraccion',
     tratamientos: [
-      { nombre: 'Blanqueamiento', costo: 180, descripcion: 'Blanqueamiento dental profesional' },
-      { nombre: 'Limpieza profunda', costo: 70, descripcion: 'Destartraje y pulido' },
+      { nombre: 'Extracción simple', costo: 140, descripcion: 'Extracción de pieza dental' },
+      { nombre: 'Extracción quirúrgica', costo: 280, descripcion: 'Extracción compleja con cirugía' },
+    ],
+  },
+  {
+    condicion: 'corona',
+    tratamientos: [
+      { nombre: 'Corona de porcelana', costo: 1200, descripcion: 'Corona cerámica completa' },
+      { nombre: 'Corona metal-porcelana', costo: 900, descripcion: 'Corona mixta metal y cerámica' },
+    ],
+  },
+  {
+    condicion: 'ausente',
+    tratamientos: [
+      { nombre: 'Implante dental', costo: 3500, descripcion: 'Implante con corona' },
+      { nombre: 'Puente fijo', costo: 2400, descripcion: 'Puente de 3 unidades' },
+    ],
+  },
+  {
+    condicion: 'implante',
+    tratamientos: [
+      { nombre: 'Revisión de implante', costo: 150, descripcion: 'Control y limpieza de implante' },
+      { nombre: 'Mantenimiento periimplantario', costo: 200, descripcion: 'Limpieza profunda periimplantaria' },
+    ],
+  },
+  {
+    condicion: 'sellante',
+    tratamientos: [
+      { nombre: 'Aplicación de sellante', costo: 80, descripcion: 'Sellante de fosas y fisuras' },
+      { nombre: 'Renovación de sellante', costo: 70, descripcion: 'Reemplazo de sellante existente' },
+    ],
+  },
+  {
+    condicion: 'fractura',
+    tratamientos: [
+      { nombre: 'Restauración de fractura', costo: 250, descripcion: 'Restauración de fragmento fracturado' },
+      { nombre: 'Corona por fractura', costo: 1100, descripcion: 'Corona para fractura extensa' },
     ],
   },
 ]
 
-// Función para sugerir tratamientos basados en hallazgos
-export function suggestTreatmentsFromFindings(findings: OdontogramV3Finding): { pieza: string; tratamientos: { nombre: string; costo: number }[] }[] {
-  const result: { pieza: string; tratamientos: { nombre: string; costo: number }[] }[] = []
+// Función para sugerir tratamientos basados en hallazgos por superficie
+export function suggestTreatmentsFromFindings(findings: OdontogramV3Finding): { pieza: string; superficie: string; tratamientos: { nombre: string; costo: number }[] }[] {
+  const result: { pieza: string; superficie: string; tratamientos: { nombre: string; costo: number }[] }[] = []
 
   Object.entries(findings).forEach(([toothId, finding]) => {
-    const tratamientosSet = new Set<string>()
-    const costos = new Map<string, number>()
-
-    Object.values(finding.superficies).forEach((surface) => {
-      const mapping = SURFACE_TREATMENT_MAPPINGS.find((m) => m.condicion === surface.condicion)
-      if (mapping) {
-        mapping.tratamientos.forEach((t) => {
-          tratamientosSet.add(t.nombre)
-          if (!costos.has(t.nombre)) {
-            costos.set(t.nombre, t.costo)
-          }
-        })
+    Object.entries(finding.superficies).forEach(([surfaceName, surface]) => {
+      // Solo agregar si la superficie no está sana
+      if (surface.condicion !== 'sano') {
+        const mapping = SURFACE_TREATMENT_MAPPINGS.find((m) => m.condicion === surface.condicion)
+        if (mapping && mapping.tratamientos.length > 0) {
+          result.push({
+            pieza: toothId,
+            superficie: surfaceName,
+            tratamientos: mapping.tratamientos.map((t) => ({
+              nombre: t.nombre,
+              costo: t.costo,
+            })),
+          })
+        }
       }
     })
-
-    if (tratamientosSet.size > 0) {
-      result.push({
-        pieza: toothId,
-        tratamientos: Array.from(tratamientosSet).map((nombre) => ({
-          nombre,
-          costo: costos.get(nombre) || 0,
-        })),
-      })
-    }
   })
 
   return result

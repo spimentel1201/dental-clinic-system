@@ -388,17 +388,26 @@ export function OdontogramSuperficies() {
                     <CardDescription>Basados en los hallazgos documentados</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-3">
-                      {summary.map((item) => (
-                        <div key={item.pieza} className="border-l-2 border-primary/50 pl-3">
-                          <div className="font-medium text-sm">Pieza {item.pieza}</div>
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {item.tratamientos.map((t) => (
-                              <Badge key={t.nombre} variant="outline" className="text-xs">
-                                {t.nombre} (S/ {t.costo})
-                              </Badge>
-                            ))}
+                    <div className="space-y-4">
+                      {summary.map((item, i) => (
+                        <div key={i} className="border-l-2 border-primary pl-4 pb-3 border-b last:border-b-0 last:pb-0">
+                          <div className="flex items-center gap-2 mb-2">
+                            <p className="font-semibold">Pieza {item.pieza}</p>
+                            <Badge variant="outline" className="capitalize text-xs">
+                              {item.superficie === 'oclusal' ? 'Oclusal' :
+                               item.superficie === 'bucal' ? 'Bucal' :
+                               item.superficie === 'lingual' ? 'Lingual' :
+                               item.superficie === 'mesial' ? 'Mesial' :
+                               item.superficie === 'distal' ? 'Distal' : item.superficie}
+                            </Badge>
                           </div>
+                          <ul className="space-y-1">
+                            {item.tratamientos.map((t) => (
+                              <li key={t.nombre} className="text-sm text-muted-foreground">
+                                • {t.nombre} — <Badge variant="secondary">{formatSoles(t.costo)}</Badge>
+                              </li>
+                            ))}
+                          </ul>
                         </div>
                       ))}
                     </div>
