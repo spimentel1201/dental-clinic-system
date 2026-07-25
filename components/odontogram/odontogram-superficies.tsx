@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ToothFindingV3, Surface, SurfaceCondition, patients, suggestTreatmentsFromFindings, formatSoles } from '@/lib/data'
+import { useAuth } from '@/lib/auth-context'
 import { PatientSearchBar } from '@/components/patients/patient-search-bar'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -43,13 +44,67 @@ const getSurfaceLabel = (surface: Surface): string => {
   return labels[surface]
 }
 
+// Datos precargados de ejemplo para especialistas
+const PRELOADED_FINDINGS: Record<string, ToothFindingV3> = {
+  '11': {
+    toothId: '11',
+    superficies: {
+      oclusal: { condicion: 'endodoncia' },
+      bucal: { condicion: 'sano' },
+      lingual: { condicion: 'sano' },
+      mesial: { condicion: 'sano' },
+      distal: { condicion: 'sano' },
+    },
+    diagnostico: 'Endodoncia realizada',
+    tratamientoSugerido: 'Corona protésica recomendada',
+  },
+  '14': {
+    toothId: '14',
+    superficies: {
+      oclusal: { condicion: 'caries' },
+      bucal: { condicion: 'caries' },
+      lingual: { condicion: 'sano' },
+      mesial: { condicion: 'sano' },
+      distal: { condicion: 'sano' },
+    },
+    diagnostico: 'Caries activa',
+    tratamientoSugerido: 'Restauración con composite',
+  },
+  '16': {
+    toothId: '16',
+    superficies: {
+      oclusal: { condicion: 'restauracion' },
+      bucal: { condicion: 'sano' },
+      lingual: { condicion: 'sano' },
+      mesial: { condicion: 'sano' },
+      distal: { condicion: 'sano' },
+    },
+    diagnostico: 'Curación existente en buen estado',
+    tratamientoSugerido: 'Control periódico',
+  },
+  '26': {
+    toothId: '26',
+    superficies: {
+      oclusal: { condicion: 'corona' },
+      bucal: { condicion: 'sano' },
+      lingual: { condicion: 'sano' },
+      mesial: { condicion: 'sano' },
+      distal: { condicion: 'sano' },
+    },
+    diagnostico: 'Corona protésica instalada',
+    tratamientoSugerido: 'Mantenimiento anual',
+  },
+}
+
 export function OdontogramSuperficies() {
   const router = useRouter()
+  const { user } = useAuth()
+  const isSpecialist = user?.role === 'especialista'
   const [pacienteId, setPacienteId] = useState('P-001')
   const [selectedTooth, setSelectedTooth] = useState<string | null>(null)
   const [selectedSurface, setSelectedSurface] = useState<Surface>('oclusal')
   const [selectedCondition, setSelectedCondition] = useState<SurfaceCondition>('sano')
-  const [findings, setFindings] = useState<Record<string, ToothFindingV3>>({})
+  const [findings, setFindings] = useState<Record<string, ToothFindingV3>>(isSpecialist ? PRELOADED_FINDINGS : {})
   const [savedSuccess, setSavedSuccess] = useState(false)
   const [generatingBudget, setGeneratingBudget] = useState(false)
 
