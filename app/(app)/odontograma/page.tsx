@@ -4,12 +4,15 @@ import { useState } from 'react'
 import { Odontogram } from '@/components/odontogram/odontogram'
 import { PatientSearchBar } from '@/components/patients/patient-search-bar'
 import { AppHeader } from '@/components/app-header'
+import { useAuth } from '@/lib/auth-context'
 import { patients } from '@/lib/data'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Printer, Save } from 'lucide-react'
 
 export default function OdontogramaPage() {
+  const { user } = useAuth()
+  const isSpecialist = user?.role === 'especialista'
   const [pacienteId, setPacienteId] = useState('P-001')
   const paciente = patients.find((p) => p.id === pacienteId) ?? patients[0]
 
@@ -27,21 +30,25 @@ export default function OdontogramaPage() {
             </p>
           </div>
         <div className="flex flex-wrap items-center gap-2">
-          <div className="w-56">
-            <PatientSearchBar
-              patients={patients}
-              value={pacienteId}
-              onSelect={setPacienteId}
-            />
-          </div>
+          {!isSpecialist && (
+            <div className="w-56">
+              <PatientSearchBar
+                patients={patients}
+                value={pacienteId}
+                onSelect={setPacienteId}
+              />
+            </div>
+          )}
           <Button variant="outline">
             <Printer data-icon="inline-start" />
             Imprimir
           </Button>
-          <Button>
-            <Save data-icon="inline-start" />
-            Guardar
-          </Button>
+          {!isSpecialist && (
+            <Button>
+              <Save data-icon="inline-start" />
+              Guardar
+            </Button>
+          )}
         </div>
       </div>
 

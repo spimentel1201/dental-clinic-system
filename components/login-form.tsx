@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Stethoscope, AlertCircle } from 'lucide-react'
-import { useAuth } from '@/lib/auth-context'
+import { useAuth, type UserRole } from '@/lib/auth-context'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -16,7 +16,7 @@ import { Spinner } from '@/components/ui/spinner'
 
 export function LoginForm() {
   const router = useRouter()
-  const { login } = useAuth()
+  const { login, user } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState('')
@@ -30,7 +30,9 @@ export function LoginForm() {
 
     try {
       await login(email, password)
-      router.push('/')
+      // Redirect based on role - specialists go directly to their appointments
+      const redirectUrl = email.includes('especialista') ? '/citas' : '/'
+      router.push(redirectUrl)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al iniciar sesión')
     } finally {

@@ -11,6 +11,7 @@ import {
   Smile,
 } from 'lucide-react'
 import { AppHeader } from '@/components/app-header'
+import { useAuth } from '@/lib/auth-context'
 import { NewPatientDialog } from '@/components/patients/new-patient-dialog'
 import { ConsentPdfButton } from '@/components/patients/consent-pdf-button'
 import { AddClinicalNoteDialog } from '@/components/clinical-notes/add-clinical-note-dialog'
@@ -40,6 +41,8 @@ const alertVariant: Record<string, string> = {
 const patientPhotos = clinicalPhotos.filter((p) => p.pacienteId === 'P-001')
 
 export default function HistoriaPage() {
+  const { user } = useAuth()
+  const isSpecialist = user?.role === 'especialista'
   const patient = patients[0] // María Elena Quispe — ficha activa
   const emptySlots = 6 - patientPhotos.length
 
@@ -56,9 +59,11 @@ export default function HistoriaPage() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Pacientes</CardTitle>
-                <NewPatientDialog />
+                {!isSpecialist && <NewPatientDialog />}
               </div>
-              <CardDescription>{patients.length} fichas registradas</CardDescription>
+              <CardDescription>
+                {isSpecialist ? 'Selecciona un paciente para ver su historia' : `${patients.length} fichas registradas`}
+              </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-1">
               {patients.map((p, i) => (
@@ -196,19 +201,21 @@ export default function HistoriaPage() {
                     <CardTitle>Evolución clínica</CardTitle>
                     <CardDescription>Registro cronológico de procedimientos</CardDescription>
                   </div>
-                  <div className="flex gap-2">
-                    <AddClinicalNoteDialog
-                      onSave={(note) => {
-                        console.log('[v0] Clinical note added:', note)
-                      }}
-                    />
-                    <SpecialistConsultationDialog
-                      pacienteId={patient.id}
-                      onSave={(consultation) => {
-                        console.log('[v0] Specialist consultation saved:', consultation)
-                      }}
-                    />
-                  </div>
+                  {!isSpecialist && (
+                    <div className="flex gap-2">
+                      <AddClinicalNoteDialog
+                        onSave={(note) => {
+                          console.log('[v0] Clinical note added:', note)
+                        }}
+                      />
+                      <SpecialistConsultationDialog
+                        pacienteId={patient.id}
+                        onSave={(consultation) => {
+                          console.log('[v0] Specialist consultation saved:', consultation)
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
               </CardHeader>
               <CardContent className="flex flex-col">
@@ -247,10 +254,12 @@ export default function HistoriaPage() {
                       {patientPhotos.length} de 6 fotos utilizadas
                     </CardDescription>
                   </div>
-                  <Button size="sm" variant="outline">
-                    <Camera data-icon="inline-start" />
-                    Subir
-                  </Button>
+                  {!isSpecialist && (
+                    <Button size="sm" variant="outline">
+                      <Camera data-icon="inline-start" />
+                      Subir
+                    </Button>
+                  )}
                 </div>
               </CardHeader>
               <CardContent className="flex flex-col gap-4">

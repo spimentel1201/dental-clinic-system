@@ -1,8 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { MessageCircle, Phone } from 'lucide-react'
+import Link from 'next/link'
+import { MessageCircle, Phone, Plus } from 'lucide-react'
 import { AppHeader } from '@/components/app-header'
+import { useAuth } from '@/lib/auth-context'
 import { WeekCalendar } from '@/components/appointments/week-calendar'
 import { MonthCalendar } from '@/components/appointments/month-calendar'
 import { NewAppointmentDialog } from '@/components/appointments/new-appointment-dialog'
@@ -28,6 +30,8 @@ function whatsappUrl(celular: string, paciente: string, hora: string) {
 }
 
 export default function CitasPage() {
+  const { user } = useAuth()
+  const isSpecialist = user?.role === 'especialista'
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
   const [detailsOpen, setDetailsOpen] = useState(false)
 
@@ -44,8 +48,10 @@ export default function CitasPage() {
         onOpenChange={setDetailsOpen}
       />
       <AppHeader
-        title="Agenda de citas"
-        subtitle="Calendario semanal, reprogramación y recordatorios de confirmación"
+        title={isSpecialist ? "Mis citas" : "Agenda de citas"}
+        subtitle={isSpecialist 
+          ? "Citas asignadas y registro de consultas externas" 
+          : "Calendario semanal, reprogramación y recordatorios de confirmación"}
       />
       <main className="flex flex-1 flex-col gap-6 p-4 md:p-6 xl:flex-row">
         <div className="min-w-0 flex-1">
@@ -54,12 +60,23 @@ export default function CitasPage() {
               <CardHeader>
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="flex flex-col gap-1">
-                    <CardTitle>Calendarios</CardTitle>
+                    <CardTitle>{isSpecialist ? "Mis citas" : "Calendarios"}</CardTitle>
                     <CardDescription>
-                      Visualiza tus citas en vista semanal o mensual
+                      {isSpecialist
+                        ? "Selecciona una cita y registra la consulta realizada"
+                        : "Visualiza tus citas en vista semanal o mensual"}
                     </CardDescription>
                   </div>
-                  <NewAppointmentDialog />
+                  {isSpecialist ? (
+                    <Link href="/citas/nueva-consulta">
+                      <Button>
+                        <Plus className="size-4 mr-2" />
+                        Nueva consulta
+                      </Button>
+                    </Link>
+                  ) : (
+                    <NewAppointmentDialog />
+                  )}
                 </div>
               </CardHeader>
               <CardContent>
