@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Eye, EyeOff, Stethoscope } from 'lucide-react'
+import { Eye, EyeOff, Stethoscope, AlertCircle } from 'lucide-react'
+import { useAuth } from '@/lib/auth-context'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -11,31 +12,30 @@ import {
   FieldLabel,
   FieldDescription,
 } from '@/components/ui/field'
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
-
-const ROLES: Record<string, string> = {
-  doctor: 'Odontólogo / Administrador',
-  recepcion: 'Recepción',
-}
 
 export function LoginForm() {
   const router = useRouter()
+  const { login } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [rol, setRol] = useState('doctor')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    setError('')
     setLoading(true)
-    setTimeout(() => router.push('/'), 600)
+
+    try {
+      await login(email, password)
+      router.push('/')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al iniciar sesión')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -55,29 +55,14 @@ export function LoginForm() {
       <form onSubmit={handleSubmit}>
         <FieldGroup>
           <Field>
-            <FieldLabel htmlFor="rol">Perfil de acceso</FieldLabel>
-            <Select value={rol} onValueChange={(v) => v && setRol(String(v))}>
-              <SelectTrigger id="rol" className="w-full">
-                <SelectValue>{ROLES[rol]}</SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem value="doctor">Odontólogo / Administrador</SelectItem>
-                  <SelectItem value="recepcion">Recepción</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            <FieldDescription>
-              El perfil determina los módulos y permisos disponibles.
-            </FieldDescription>
-          </Field>
-
-          <Field>
-            <FieldLabel htmlFor="usuario">Usuario o correo</FieldLabel>
+            <FieldLabel htmlFor="email">Correo Electrónico</FieldLabel>
             <Input
-              id="usuario"
-              type="text"
-              placeholder="doctora@dentaclinic.pe"
+              id="email"
+              type="email"
+              placeholder="correo@clinicadental.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
               autoComplete="username"
               required
             />
@@ -86,18 +71,15 @@ export function LoginForm() {
           <Field>
             <div className="flex items-center justify-between">
               <FieldLabel htmlFor="password">Contraseña</FieldLabel>
-              <button
-                type="button"
-                className="text-xs font-medium text-primary hover:underline"
-              >
-                {'¿Olvidaste tu contraseña?'}
-              </button>
             </div>
             <div className="relative">
               <Input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
                 autoComplete="current-password"
                 required
                 className="pr-10"
@@ -117,14 +99,50 @@ export function LoginForm() {
             </div>
           </Field>
 
+          {error && (
+            <div className="flex gap-3 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+              <p>{error}</p>
+            </div>
+          )}
+
           <Field>
-            <Button type="submit" disabled={loading} className="w-full">
+            <Button
+              type="submit"
+              disabled={loading || !email || !password}
+              className="w-full"
+            >
               {loading ? <Spinner data-icon="inline-start" /> : null}
               {loading ? 'Ingresando...' : 'Ingresar al sistema'}
             </Button>
           </Field>
         </FieldGroup>
       </form>
+
+      {/* Test Users */}
+      <div className="space-y-3 border-t border-border pt-6">
+        <p className="text-xs font-semibold text-muted-foreground">
+          USUARIOS DE PRUEBA
+        </p>
+        <div className="space-y-2 text-xs">
+          <div className="rounded-lg bg-muted p-3">
+            <p className="font-medium">👨‍⚕️ Odontólogo (Admin)</p>
+            <p className="mt-1 font-mono text-muted-foreground/75">
+              admin@clinicadental.com
+            </p>
+            <p className="font-mono text-muted-foreground/75">Admin123!</p>
+          </div>
+          <div className="rounded-lg bg-muted p-3">
+            <p className="font-medium">👨‍🔬 Especialista Externo</p>
+            <p className="mt-1 font-mono text-muted-foreground/75">
+              especialista@clinicadental.com
+            </p>
+            <p className="font-mono text-muted-foreground/75">
+              Especialista123!
+            </p>
+          </div>
+        </div>
+      </div>
 
       <p className="text-center text-xs leading-relaxed text-muted-foreground">
         Acceso restringido al personal autorizado. Toda la actividad queda registrada para
