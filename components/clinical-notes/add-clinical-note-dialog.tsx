@@ -31,7 +31,7 @@ export interface ClinicalNoteData {
 
 export function AddClinicalNoteDialog({ onSave }: ClinicalNoteFormProps) {
   const [open, setOpen] = useState(false)
-  const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0])
+  const [fecha, setFecha] = useState('')
   const [diagnosis, setDiagnosis] = useState('')
   const [findings, setFindings] = useState('')
   const [treatmentDone, setTreatmentDone] = useState('')
@@ -56,7 +56,7 @@ export function AddClinicalNoteDialog({ onSave }: ClinicalNoteFormProps) {
     onSave?.(noteData)
 
     // Reset form
-    setFecha(new Date().toISOString().split('T')[0])
+    setFecha('')
     setDiagnosis('')
     setFindings('')
     setTreatmentDone('')
@@ -68,8 +68,8 @@ export function AddClinicalNoteDialog({ onSave }: ClinicalNoteFormProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button size="sm" variant="outline" />}>
-        <Plus data-icon="inline-start" />
+      <DialogTrigger className="inline-flex shrink-0 items-center justify-center rounded-lg border border-border bg-background hover:bg-muted text-sm font-medium whitespace-nowrap transition-all h-7 gap-1 px-2.5">
+        <Plus className="size-3.5" />
         Nueva nota
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
@@ -142,7 +142,9 @@ export function AddClinicalNoteDialog({ onSave }: ClinicalNoteFormProps) {
           </FieldGroup>
 
           <DialogFooter className="mt-6">
-            <DialogClose render={<Button variant="outline" />}>Cancelar</DialogClose>
+            <DialogClose asChild>
+              <Button variant="outline">Cancelar</Button>
+            </DialogClose>
             <Button type="submit">Guardar nota</Button>
           </DialogFooter>
         </form>

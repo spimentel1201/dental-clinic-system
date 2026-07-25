@@ -59,12 +59,16 @@ export function SpecialistConsultationDialog({
       return
     }
 
+    // Generate random ID to avoid hydration mismatch
+    const randomId = typeof window !== 'undefined' 
+      ? crypto.getRandomValues(new Uint8Array(4)).join('-')
+      : 'tmp'
+    
     const consultationData = {
-      id: `SH-${Date.now()}`,
+      id: `SH-${randomId}`,
       pacienteId,
       specialty: selectedSpecialty,
       appointmentDate,
-      createdAt: new Date().toISOString().split('T')[0],
       status: 'pendiente',
     }
 
@@ -79,11 +83,9 @@ export function SpecialistConsultationDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm" variant="outline">
-          <Plus data-icon="inline-start" />
-          Consulta Externa
-        </Button>
+      <DialogTrigger className="inline-flex shrink-0 items-center justify-center rounded-lg border border-border bg-background hover:bg-muted text-sm font-medium whitespace-nowrap transition-all h-7 gap-1 px-2.5">
+        <Plus className="size-3.5" />
+        Consulta Externa
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>

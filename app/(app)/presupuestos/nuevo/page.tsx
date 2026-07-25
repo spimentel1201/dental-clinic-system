@@ -51,8 +51,13 @@ export default function NuevoPresupuestoPage() {
     const treatmentsList = TREATMENTS.filter((t) => selectedTreatments.includes(t.id))
     const sessionCost = treatmentsList.reduce((sum, t) => sum + t.cost, 0)
 
+    // Generate random ID to avoid hydration mismatch
+    const randomId = typeof window !== 'undefined' 
+      ? crypto.getRandomValues(new Uint8Array(4)).join('-')
+      : 'tmp'
+    
     const newSession = {
-      id: `S-${Date.now()}`,
+      id: `S-${randomId}`,
       numero: sessions.length + 1,
       treatments: selectedTreatments,
       treatmentsList,

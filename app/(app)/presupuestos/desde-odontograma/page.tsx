@@ -91,9 +91,14 @@ function PresupuestoDesdeOdontogramaContent() {
       return
     }
 
+    // Generate random ID to avoid hydration mismatch
+    const randomId = typeof window !== 'undefined' 
+      ? crypto.getRandomValues(new Uint8Array(4)).join('-')
+      : 'tmp'
+
     // Save budget (in real app, this would hit an API)
     const budgetData = {
-      id: `PR-${Date.now()}`,
+      id: `PR-${randomId}`,
       nombre: presupuestoName,
       pacienteId,
       items: budgetItems,
@@ -101,7 +106,6 @@ function PresupuestoDesdeOdontogramaContent() {
       igv,
       total,
       diagnosticoGeneral,
-      fecha: new Date().toISOString(),
       estado: 'pendiente',
     }
 
