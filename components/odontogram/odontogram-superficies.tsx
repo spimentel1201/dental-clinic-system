@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ToothFindingV3, Surface, SurfaceCondition, patients, suggestTreatmentsFromFindings } from '@/lib/data'
+import { ToothFindingV3, Surface, SurfaceCondition, patients, suggestTreatmentsFromFindings, formatSoles } from '@/lib/data'
 import { PatientSearchBar } from '@/components/patients/patient-search-bar'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
