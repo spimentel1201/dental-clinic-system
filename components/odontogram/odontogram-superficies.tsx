@@ -13,12 +13,17 @@ import { AlertCircle, CheckCircle2, ArrowRight } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useOdontogramFindings } from '@/lib/hooks/useOdontogramFindings'
 
-const SURFACE_COLORS: Record<SurfaceCondition, string> = {
-  normal: 'bg-green-100 border-green-400',
-  caries: 'bg-orange-100 border-orange-400',
-  restauracion: 'bg-blue-100 border-blue-400',
-  desgaste: 'bg-yellow-100 border-yellow-400',
-  mancha: 'bg-brown-100 border-brown-400',
+const SURFACE_COLORS: Record<SurfaceCondition, { bg: string; border: string; label: string }> = {
+  sano: { bg: 'bg-green-100', border: 'border-green-400', label: 'Sano' },
+  caries: { bg: 'bg-orange-100', border: 'border-orange-400', label: 'Caries' },
+  restauracion: { bg: 'bg-blue-100', border: 'border-blue-400', label: 'Curación/Resina' },
+  endodoncia: { bg: 'bg-purple-100', border: 'border-purple-400', label: 'Endodoncia' },
+  extraccion: { bg: 'bg-red-100', border: 'border-red-400', label: 'Indicado p/ extracción' },
+  corona: { bg: 'bg-yellow-100', border: 'border-yellow-400', label: 'Corona' },
+  ausente: { bg: 'bg-gray-100', border: 'border-gray-400', label: 'Pieza ausente' },
+  implante: { bg: 'bg-indigo-100', border: 'border-indigo-400', label: 'Implante' },
+  sellante: { bg: 'bg-cyan-100', border: 'border-cyan-400', label: 'Sellante' },
+  fractura: { bg: 'bg-pink-100', border: 'border-pink-400', label: 'Fractura' },
 }
 
 const SURFACES: Surface[] = ['oclusal', 'bucal', 'lingual', 'mesial', 'distal']
@@ -43,7 +48,7 @@ export function OdontogramSuperficies() {
   const [pacienteId, setPacienteId] = useState('P-001')
   const [selectedTooth, setSelectedTooth] = useState<string | null>(null)
   const [selectedSurface, setSelectedSurface] = useState<Surface>('oclusal')
-  const [selectedCondition, setSelectedCondition] = useState<SurfaceCondition>('normal')
+  const [selectedCondition, setSelectedCondition] = useState<SurfaceCondition>('sano')
   const [findings, setFindings] = useState<Record<string, ToothFindingV3>>({})
   const [savedSuccess, setSavedSuccess] = useState(false)
   const [generatingBudget, setGeneratingBudget] = useState(false)
@@ -54,11 +59,11 @@ export function OdontogramSuperficies() {
   const initializeTooth = (toothId: string) => {
     if (!findings[toothId]) {
       const superficies: Record<Surface, { condicion: SurfaceCondition; observacion?: string }> = {
-        oclusal: { condicion: 'normal' },
-        bucal: { condicion: 'normal' },
-        lingual: { condicion: 'normal' },
-        mesial: { condicion: 'normal' },
-        distal: { condicion: 'normal' },
+        oclusal: { condicion: 'sano' },
+        bucal: { condicion: 'sano' },
+        lingual: { condicion: 'sano' },
+        mesial: { condicion: 'sano' },
+        distal: { condicion: 'sano' },
       }
       setFindings({
         ...findings,
@@ -91,8 +96,9 @@ export function OdontogramSuperficies() {
 
   const getSurfaceColor = (toothId: string, surface: Surface): string => {
     const finding = findings[toothId]
-    if (!finding) return SURFACE_COLORS.normal
-    return SURFACE_COLORS[finding.superficies[surface].condicion]
+    if (!finding) return `${SURFACE_COLORS.sano.bg} border-2 ${SURFACE_COLORS.sano.border}`
+    const condition = finding.superficies[surface].condicion
+    return `${SURFACE_COLORS[condition].bg} border-2 ${SURFACE_COLORS[condition].border}`
   }
 
   const handleSaveFindings = () => {
@@ -144,23 +150,23 @@ export function OdontogramSuperficies() {
           <div className="space-y-2">
             <label className="text-sm font-medium">Estado/Condiciones dentales</label>
             <div className="flex flex-wrap gap-2">
-              {Object.entries(SURFACE_COLORS).map(([condition, colorClass]) => {
-                const conditionLabel = condition === 'normal' ? 'Sano' :
-                                      condition === 'caries' ? 'Caries' :
-                                      condition === 'restauracion' ? 'Curación/Resina' :
-                                      condition === 'desgaste' ? 'Desgaste' :
-                                      'Mancha'
+              {Object.entries(SURFACE_COLORS).map(([condition, colorInfo]) => {
+                const isActive = selectedCondition === condition
                 return (
                   <button
                     key={condition}
                     onClick={() => setSelectedCondition(condition as SurfaceCondition)}
                     className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all border-2 cursor-pointer ${
-                      selectedCondition === condition
-                        ? `${colorClass} ring-2 ring-offset-2 ring-primary shadow-md`
-                        : `${colorClass} opacity-75 hover:opacity-100`
+                      colorInfo.bg
+                    } ${
+                      colorInfo.border
+                    } ${
+                      isActive
+                        ? 'ring-2 ring-offset-2 ring-primary shadow-md'
+                        : 'opacity-75 hover:opacity-100'
                     }`}
                   >
-                    {conditionLabel}
+                    {colorInfo.label}
                   </button>
                 )
               })}
@@ -195,7 +201,7 @@ export function OdontogramSuperficies() {
                             e.stopPropagation()
                             if (selectedTooth === toothId) setSelectedSurface('oclusal')
                           }}
-                          className={`w-12 h-6 rounded-full border-2 ${getSurfaceColor(toothId, 'oclusal')} cursor-pointer hover:opacity-80`}
+                          className={`w-12 h-6 rounded-full cursor-pointer hover:opacity-80 transition-all ${getSurfaceColor(toothId, 'oclusal')}`}
                           title="Oclusal"
                         />
 
@@ -207,7 +213,7 @@ export function OdontogramSuperficies() {
                               e.stopPropagation()
                               if (selectedTooth === toothId) setSelectedSurface('bucal')
                             }}
-                            className={`w-5 h-8 rounded border-2 ${getSurfaceColor(toothId, 'bucal')} cursor-pointer hover:opacity-80`}
+                            className={`w-5 h-8 rounded cursor-pointer hover:opacity-80 transition-all ${getSurfaceColor(toothId, 'bucal')}`}
                             title="Bucal"
                           />
 
@@ -222,7 +228,7 @@ export function OdontogramSuperficies() {
                               e.stopPropagation()
                               if (selectedTooth === toothId) setSelectedSurface('lingual')
                             }}
-                            className={`w-5 h-8 rounded border-2 ${getSurfaceColor(toothId, 'lingual')} cursor-pointer hover:opacity-80`}
+                            className={`w-5 h-8 rounded cursor-pointer hover:opacity-80 transition-all ${getSurfaceColor(toothId, 'lingual')}`}
                             title="Lingual"
                           />
                         </div>
@@ -235,7 +241,7 @@ export function OdontogramSuperficies() {
                               e.stopPropagation()
                               if (selectedTooth === toothId) setSelectedSurface('mesial')
                             }}
-                            className={`flex-1 h-5 rounded-sm border-2 ${getSurfaceColor(toothId, 'mesial')} cursor-pointer hover:opacity-80`}
+                            className={`flex-1 h-5 rounded-sm cursor-pointer hover:opacity-80 transition-all ${getSurfaceColor(toothId, 'mesial')}`}
                             title="Mesial"
                           />
 
@@ -245,7 +251,7 @@ export function OdontogramSuperficies() {
                               e.stopPropagation()
                               if (selectedTooth === toothId) setSelectedSurface('distal')
                             }}
-                            className={`flex-1 h-5 rounded-sm border-2 ${getSurfaceColor(toothId, 'distal')} cursor-pointer hover:opacity-80`}
+                            className={`flex-1 h-5 rounded-sm cursor-pointer hover:opacity-80 transition-all ${getSurfaceColor(toothId, 'distal')}`}
                             title="Distal"
                           />
                         </div>

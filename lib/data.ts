@@ -480,7 +480,17 @@ export type OdontogramV2Finding = Record<string, ToothFindingV2>
 
 // Tipos para Odontograma V3 (por superficies)
 export type Surface = 'oclusal' | 'bucal' | 'lingual' | 'mesial' | 'distal'
-export type SurfaceCondition = 'normal' | 'caries' | 'restauracion' | 'desgaste' | 'mancha'
+export type SurfaceCondition = 
+  | 'sano'
+  | 'caries'
+  | 'restauracion'
+  | 'endodoncia'
+  | 'extraccion'
+  | 'corona'
+  | 'ausente'
+  | 'implante'
+  | 'sellante'
+  | 'fractura'
 
 export type ToothFindingV3 = {
   toothId: string

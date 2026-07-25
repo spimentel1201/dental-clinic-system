@@ -14,6 +14,7 @@ import { AppHeader } from '@/components/app-header'
 import { NewPatientDialog } from '@/components/patients/new-patient-dialog'
 import { ConsentPdfButton } from '@/components/patients/consent-pdf-button'
 import { AddClinicalNoteDialog } from '@/components/clinical-notes/add-clinical-note-dialog'
+import { SpecialistConsultationDialog } from '@/components/specialist-history/specialist-consultation-dialog'
 import {
   Card,
   CardContent,
@@ -195,11 +196,19 @@ export default function HistoriaPage() {
                     <CardTitle>Evolución clínica</CardTitle>
                     <CardDescription>Registro cronológico de procedimientos</CardDescription>
                   </div>
-                  <AddClinicalNoteDialog
-                    onSave={(note) => {
-                      console.log('[v0] Clinical note added:', note)
-                    }}
-                  />
+                  <div className="flex gap-2">
+                    <AddClinicalNoteDialog
+                      onSave={(note) => {
+                        console.log('[v0] Clinical note added:', note)
+                      }}
+                    />
+                    <SpecialistConsultationDialog
+                      pacienteId={patient.id}
+                      onSave={(consultation) => {
+                        console.log('[v0] Specialist consultation saved:', consultation)
+                      }}
+                    />
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="flex flex-col">
