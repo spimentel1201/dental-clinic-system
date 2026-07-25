@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Save, Download, Upload, Trash2, Plus } from 'lucide-react'
+import { AppHeader } from '@/components/app-header'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -126,11 +127,11 @@ export default function ConfiguracionPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
+      <AppHeader
+        title="Configuración"
+        subtitle="Administra la configuración de la clínica dental"
+      />
       <main className="flex-1 space-y-6 p-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Configuración</h1>
-          <p className="text-muted-foreground">Administra la configuración de la clínica dental</p>
-        </div>
 
         {saveSuccess && (
           <div className="rounded-lg bg-success/10 p-4 text-sm text-success">

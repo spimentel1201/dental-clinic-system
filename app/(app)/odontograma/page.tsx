@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Odontogram } from '@/components/odontogram/odontogram'
 import { PatientSearchBar } from '@/components/patients/patient-search-bar'
+import { AppHeader } from '@/components/app-header'
 import { patients } from '@/lib/data'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -13,14 +14,18 @@ export default function OdontogramaPage() {
   const paciente = patients.find((p) => p.id === pacienteId) ?? patients[0]
 
   return (
-    <div className="flex flex-col gap-6 p-4 md:p-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex flex-col gap-1">
-          <h1 className="font-serif text-2xl font-semibold text-balance">Odontograma</h1>
-          <p className="text-sm text-muted-foreground">
-            Registro gráfico según norma técnica MINSA. Seleccione un hallazgo y luego la pieza o superficie dental.
-          </p>
-        </div>
+    <div className="flex min-h-screen flex-col bg-background">
+      <AppHeader
+        title="Odontograma"
+        subtitle="Registro gráfico según norma técnica MINSA"
+      />
+      <div className="flex flex-col gap-6 p-4 md:p-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col gap-1">
+            <p className="text-sm text-muted-foreground">
+              Seleccione un hallazgo y luego la pieza o superficie dental.
+            </p>
+          </div>
         <div className="flex flex-wrap items-center gap-2">
           <div className="w-56">
             <PatientSearchBar
@@ -54,6 +59,7 @@ export default function OdontogramaPage() {
       </div>
 
       <Odontogram key={pacienteId} />
+      </div>
     </div>
   )
 }

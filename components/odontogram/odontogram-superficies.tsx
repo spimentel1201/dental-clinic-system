@@ -13,17 +13,17 @@ import { AlertCircle, CheckCircle2, ArrowRight } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useOdontogramFindings } from '@/lib/hooks/useOdontogramFindings'
 
-const SURFACE_COLORS: Record<SurfaceCondition, { bg: string; border: string; label: string }> = {
-  sano: { bg: 'bg-green-100', border: 'border-green-400', label: 'Sano' },
-  caries: { bg: 'bg-orange-100', border: 'border-orange-400', label: 'Caries' },
-  restauracion: { bg: 'bg-blue-100', border: 'border-blue-400', label: 'Curación/Resina' },
-  endodoncia: { bg: 'bg-purple-100', border: 'border-purple-400', label: 'Endodoncia' },
-  extraccion: { bg: 'bg-red-100', border: 'border-red-400', label: 'Indicado p/ extracción' },
-  corona: { bg: 'bg-yellow-100', border: 'border-yellow-400', label: 'Corona' },
-  ausente: { bg: 'bg-gray-100', border: 'border-gray-400', label: 'Pieza ausente' },
-  implante: { bg: 'bg-indigo-100', border: 'border-indigo-400', label: 'Implante' },
-  sellante: { bg: 'bg-cyan-100', border: 'border-cyan-400', label: 'Sellante' },
-  fractura: { bg: 'bg-pink-100', border: 'border-pink-400', label: 'Fractura' },
+const SURFACE_COLORS: Record<SurfaceCondition, { bg: string; border: string; text: string; label: string }> = {
+  sano: { bg: 'bg-green-500 dark:bg-green-600', border: 'border-green-600 dark:border-green-500', text: 'text-white', label: 'Sano' },
+  caries: { bg: 'bg-orange-500 dark:bg-orange-600', border: 'border-orange-600 dark:border-orange-500', text: 'text-white', label: 'Caries' },
+  restauracion: { bg: 'bg-blue-500 dark:bg-blue-600', border: 'border-blue-600 dark:border-blue-500', text: 'text-white', label: 'Curación/Resina' },
+  endodoncia: { bg: 'bg-purple-500 dark:bg-purple-600', border: 'border-purple-600 dark:border-purple-500', text: 'text-white', label: 'Endodoncia' },
+  extraccion: { bg: 'bg-red-500 dark:bg-red-600', border: 'border-red-600 dark:border-red-500', text: 'text-white', label: 'Indicado p/ extracción' },
+  corona: { bg: 'bg-amber-500 dark:bg-amber-600', border: 'border-amber-600 dark:border-amber-500', text: 'text-white', label: 'Corona' },
+  ausente: { bg: 'bg-slate-500 dark:bg-slate-600', border: 'border-slate-600 dark:border-slate-500', text: 'text-white', label: 'Pieza ausente' },
+  implante: { bg: 'bg-indigo-500 dark:bg-indigo-600', border: 'border-indigo-600 dark:border-indigo-500', text: 'text-white', label: 'Implante' },
+  sellante: { bg: 'bg-cyan-500 dark:bg-cyan-600', border: 'border-cyan-600 dark:border-cyan-500', text: 'text-white', label: 'Sellante' },
+  fractura: { bg: 'bg-pink-500 dark:bg-pink-600', border: 'border-pink-600 dark:border-pink-500', text: 'text-white', label: 'Fractura' },
 }
 
 const SURFACES: Surface[] = ['oclusal', 'bucal', 'lingual', 'mesial', 'distal']
@@ -96,9 +96,9 @@ export function OdontogramSuperficies() {
 
   const getSurfaceColor = (toothId: string, surface: Surface): string => {
     const finding = findings[toothId]
-    if (!finding) return `${SURFACE_COLORS.sano.bg} border-2 ${SURFACE_COLORS.sano.border}`
+    if (!finding) return `${SURFACE_COLORS.sano.bg} border-2 ${SURFACE_COLORS.sano.border} ${SURFACE_COLORS.sano.text}`
     const condition = finding.superficies[surface].condicion
-    return `${SURFACE_COLORS[condition].bg} border-2 ${SURFACE_COLORS[condition].border}`
+    return `${SURFACE_COLORS[condition].bg} border-2 ${SURFACE_COLORS[condition].border} ${SURFACE_COLORS[condition].text}`
   }
 
   const handleSaveFindings = () => {
@@ -160,6 +160,8 @@ export function OdontogramSuperficies() {
                       colorInfo.bg
                     } ${
                       colorInfo.border
+                    } ${
+                      colorInfo.text
                     } ${
                       isActive
                         ? 'ring-2 ring-offset-2 ring-primary shadow-md'
