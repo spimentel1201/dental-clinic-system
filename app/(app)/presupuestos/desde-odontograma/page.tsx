@@ -8,12 +8,13 @@ import { Badge } from '@/components/ui/badge'
 import { Textarea } from '@/components/ui/textarea'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AlertCircle, CheckCircle2, ArrowLeft } from 'lucide-react'
-import { ToothFindingV3, patients } from '@/lib/data'
+import { ToothFindingV3, patients, suggestTreatmentsFromFindings, SURFACE_TREATMENT_MAPPINGS } from '@/lib/data'
 import { Input } from '@/components/ui/input'
 import { Field, FieldLabel } from '@/components/ui/field'
 
 interface BudgetItem {
   pieza: string
+  superficie: string
   tratamiento: string
   costo: number
   cantidad: number
@@ -39,16 +40,19 @@ function PresupuestoDesdeOdontogramaContent() {
         const decoded = JSON.parse(decodeURIComponent(hallazgosStr))
         setHallazgos(decoded)
         
-        // Extract and prepare budget items from findings
-        const items: BudgetItem[] = []
-        Object.entries(decoded).forEach(([toothId, finding]: [string, any]) => {
-          if (finding.tratamientoSugerido) {
-            items.push({
-              pieza: toothId,
-              tratamiento: finding.tratamientoSugerido,
-              costo: 150, // Default cost, can be adjusted
-              cantidad: 1,
-            })
+        // Get suggested treatments which includes all surfaces with treatments
+        const suggestedTreatments = suggestTreatmentsFromFindings(decoded)
+        
+        // Extract and prepare budget items from suggested treatments
+        const items: BudgetItem[] = suggestedTreatments.map((suggestion: any) => {
+          // Get the first treatment (user can select others in the form)
+          const firstTratamiento = suggestion.tratamientos[0]
+          return {
+            pieza: suggestion.pieza,
+            superficie: suggestion.superficie || '',
+            tratamiento: firstTratamiento?.nombre || '',
+            costo: firstTratamiento?.costo || 0,
+            cantidad: 1,
           }
         })
         setBudgetItems(items)
@@ -65,6 +69,7 @@ function PresupuestoDesdeOdontogramaContent() {
       ...budgetItems,
       {
         pieza: '',
+        superficie: '',
         tratamiento: '',
         costo: 0,
         cantidad: 1,
@@ -205,8 +210,9 @@ function PresupuestoDesdeOdontogramaContent() {
                   <>
                     {/* Headers */}
                     <div className="grid grid-cols-12 gap-3 px-3 py-2 mb-2 bg-muted/50 rounded border border-border">
-                      <div className="col-span-2 text-xs font-semibold text-muted-foreground">Pieza</div>
-                      <div className="col-span-4 text-xs font-semibold text-muted-foreground">Tratamiento</div>
+                      <div className="col-span-1 text-xs font-semibold text-muted-foreground">Pieza</div>
+                      <div className="col-span-2 text-xs font-semibold text-muted-foreground">Superficie</div>
+                      <div className="col-span-3 text-xs font-semibold text-muted-foreground">Tratamiento</div>
                       <div className="col-span-2 text-xs font-semibold text-muted-foreground">Costo</div>
                       <div className="col-span-2 text-xs font-semibold text-muted-foreground">Cantidad</div>
                       <div className="col-span-2"></div>
@@ -215,7 +221,7 @@ function PresupuestoDesdeOdontogramaContent() {
                     {/* Items */}
                     {budgetItems.map((item, idx) => (
                     <div key={idx} className="grid grid-cols-12 gap-3 pb-4 items-end last:pb-0">
-                      <div className="col-span-2">
+                      <div className="col-span-1">
                         <Input
                           placeholder="Ej: 43"
                           value={item.pieza}
@@ -223,7 +229,15 @@ function PresupuestoDesdeOdontogramaContent() {
                           className="text-sm"
                         />
                       </div>
-                      <div className="col-span-4">
+                      <div className="col-span-2">
+                        <Input
+                          placeholder="Ej: Oclusal"
+                          value={item.superficie}
+                          onChange={(e) => handleUpdateItem(idx, 'superficie', e.target.value)}
+                          className="text-sm"
+                        />
+                      </div>
+                      <div className="col-span-3">
                         <Input
                           placeholder="Ej: Curación de caries"
                           value={item.tratamiento}
