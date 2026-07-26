@@ -1,14 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
-import { MessageCircle, Phone, Plus } from 'lucide-react'
+import { MessageCircle, Phone } from 'lucide-react'
 import { AppHeader } from '@/components/app-header'
 import { useAuth } from '@/lib/auth-context'
 import { WeekCalendar } from '@/components/appointments/week-calendar'
 import { MonthCalendar } from '@/components/appointments/month-calendar'
 import { NewAppointmentDialog } from '@/components/appointments/new-appointment-dialog'
 import { AppointmentDetailsDialog } from '@/components/appointments/appointment-details-dialog'
+import { SpecialistConsultationDialog } from '@/components/appointments/specialist-consultation-dialog'
 import { Appointment } from '@/lib/data'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
@@ -34,11 +34,29 @@ export default function CitasPage() {
   const isSpecialist = user?.role === 'especialista'
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
   const [detailsOpen, setDetailsOpen] = useState(false)
+  const [consultationOpen, setConsultationOpen] = useState(false)
+  const [consultationAppointment, setConsultationAppointment] = useState<Appointment | null>(null)
 
   const today = appointments
     .filter((a) => a.fecha === '2026-07-17')
     .sort((a, b) => a.hora.localeCompare(b.hora))
   const tomorrow = appointments.filter((a) => a.fecha === '2026-07-18')
+
+  const handleAppointmentClick = (apt: Appointment) => {
+    if (isSpecialist) {
+      setConsultationAppointment(apt)
+      setConsultationOpen(true)
+    } else {
+      setSelectedAppointment(apt)
+      setDetailsOpen(true)
+    }
+  }
+
+  const handleConsultationSave = (consultation: any) => {
+    console.log('[v0] Consultation saved:', consultation)
+    setConsultationOpen(false)
+    setConsultationAppointment(null)
+  }
 
   return (
     <>
@@ -46,6 +64,12 @@ export default function CitasPage() {
         appointment={selectedAppointment}
         open={detailsOpen}
         onOpenChange={setDetailsOpen}
+      />
+      <SpecialistConsultationDialog
+        appointment={consultationAppointment}
+        open={consultationOpen}
+        onOpenChange={setConsultationOpen}
+        onSave={handleConsultationSave}
       />
       <AppHeader
         title={isSpecialist ? "Mis citas" : "Agenda de citas"}
@@ -63,20 +87,11 @@ export default function CitasPage() {
                     <CardTitle>{isSpecialist ? "Mis citas" : "Calendarios"}</CardTitle>
                     <CardDescription>
                       {isSpecialist
-                        ? "Selecciona una cita y registra la consulta realizada"
+                        ? "Haz click en una cita para registrar la consulta realizada"
                         : "Visualiza tus citas en vista semanal o mensual"}
                     </CardDescription>
                   </div>
-                  {isSpecialist ? (
-                    <Link href="/citas/nueva-consulta">
-                      <Button>
-                        <Plus className="size-4 mr-2" />
-                        Nueva consulta
-                      </Button>
-                    </Link>
-                  ) : (
-                    <NewAppointmentDialog />
-                  )}
+                  {!isSpecialist && <NewAppointmentDialog />}
                 </div>
               </CardHeader>
               <CardContent>
@@ -92,10 +107,7 @@ export default function CitasPage() {
                 <TabsContent value="mensual">
                   <MonthCalendar
                     appointments={appointments}
-                    onAppointmentClick={(apt) => {
-                      setSelectedAppointment(apt)
-                      setDetailsOpen(true)
-                    }}
+                    onAppointmentClick={handleAppointmentClick}
                   />
                 </TabsContent>
               </CardContent>
@@ -114,10 +126,7 @@ export default function CitasPage() {
                 <div
                   key={cita.id}
                   className="flex flex-col gap-2 cursor-pointer rounded-lg p-2 transition-colors hover:bg-muted"
-                  onClick={() => {
-                    setSelectedAppointment(cita)
-                    setDetailsOpen(true)
-                  }}
+                  onClick={() => handleAppointmentClick(cita)}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex flex-col gap-0.5">
